@@ -7,7 +7,7 @@ export default function SystemLogin(){
     useEffect(() => {
         if(window.location.pathname === "/areacliente" && localStorage.getItem("ImpressTech")){
             let data = JSON.parse(localStorage.getItem("ImpressTech"))
-            window.location.href = `http://localhost:3000/${data.ID}/painel`
+            window.location.href = `https://localhost:3000/${data.ID}/painel`
         }
     }, [])
 
@@ -37,7 +37,7 @@ export default function SystemLogin(){
                     }
                     data = JSON.stringify(data)
                     localStorage.setItem("ImpressTech", data)
-                    window.location.href = `http://localhost:3000/${resposta.data.id}/painel`
+                    window.location.href = `https://localhost:3000/${resposta.data.id}/painel`
                 }
             }catch(erro){
                 console.log(erro)
@@ -55,7 +55,7 @@ export default function SystemLogin(){
                 setType("load")
                 const resposta = await axios.post("http://localhost:4000/enviar-registro", { email, senha, name });
                 if(resposta.data.id){
-                    window.location.href = `http://localhost:3000/${resposta.data.id}/painel`
+                    window.location.href = `https://localhost:3000/${resposta.data.id}/painel`
                 }
             }catch(erro){
                 if (erro.response && erro.response.status === 409) {
