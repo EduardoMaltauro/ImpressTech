@@ -1,0 +1,12 @@
+.index{
+    height: 100%;
+    margin: 0px; 
+    padding: 0px; 
+    background-color: #2d3135;
+    color: #fff;
+    font-family: 'Gill Sans', 'Gill Sans MT', 'Trebuchet MS', sans-serif;
+}
+
+.index a, button{
+    cursor: pointer;
+}
