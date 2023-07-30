@@ -18,6 +18,19 @@ rotas.get('/', async function (requisicao, resposta) {
   }
 });
 
+rotas.post('/add-pages', async function(requisicao, resposta){
+  const app_tokenR = requisicao.body.app_token
+  const pageIdR = requisicao.body.pageId
+  const pageName = requisicao.body.pageName
+  const idR = requisicao.body.id
+  try{
+
+  }catch(erro){
+    console.log(erro)
+    resposta.status(500).json({ error: "Erro interno do servidor" });
+  }
+})
+
 rotas.get('/get-facebook', async function(requisicao, resposta){
   const idR = requisicao.query.id
   try{
