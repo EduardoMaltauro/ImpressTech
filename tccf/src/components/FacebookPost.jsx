@@ -5,53 +5,58 @@ import LoginFacebook from "../components/LoginFacebook.jsx";
 
 export default function FecebookPost() {
   const [type, setType] = useState("load");
+  const [pageName, setPageName] = useState([]);
 
+  async function getPages() {
+    if (localStorage.getItem("ImpressTech")) {
+      let data = JSON.parse(localStorage.getItem("ImpressTech"));
+      let id = data.ID;
 
+      try {
+        const resposta = await axios.post(`http://localhost:4000/get-facebook`, { id })
 
-  useEffect(() => {
-    async function getPages() {
-      if (localStorage.getItem("ImpressTech")) {
-        let data = JSON.parse(localStorage.getItem("ImpressTech"));
-        let id = data.ID;
-
-        try {
-          const resposta = await axios.get(`http://localhost:4000/get-facebook`, {
-            params: { id },
-          });
-
-          if (resposta.data.length <= 0) {
-            setType("semPeges");
-          } else {
-            setType("comPeges");
-          }
-        } catch (erro) {
-          console.log(erro);
+        console.log(resposta.data)
+        if (resposta.data.pages.length > 0) {
+          setPageName(resposta.data.pages.map((page) => page.pageName));
+          setType("comPages");
+        } else {
+          setType("semPages");
         }
+      } catch (erro) {
+        console.log(erro);
+        setType("semPages");
       }
     }
+  }
 
+  useEffect(() => {
     getPages();
   }, []);
 
-  if (type === "semPeges") {
+  if (type === "semPages") {
     return (
       <div className={styles.index}>
         <div className={styles.semPages}>
           <h2>ATENÇÃO</h2>
           <p>Você não possui nenhuma página em nosso sistema</p>
-          {/* <button>ADICIONAR</button> */}
-          <LoginFacebook/>
-          
-          <div></div>
+          <LoginFacebook getPages={() => getPages()} />
         </div>
       </div>
     );
   }
 
-  if (type === "comPeges") {
+  if (type === "comPages") {
     return (
       <div className={styles.index}>
-        {/* Renderizar o conteúdo quando houver páginas */}
+        <select className={styles.selectPage}>
+          {pageName.map((option) => (
+            <option value={option}>
+              {option}
+            </option>
+          ))}
+        </select>
+      
+      
       </div>
     );
   }

@@ -18,31 +18,62 @@ rotas.get('/', async function (requisicao, resposta) {
   }
 });
 
-rotas.post('/add-pages', async function(requisicao, resposta){
-  const app_tokenR = requisicao.body.app_token
-  const pageIdR = requisicao.body.pageId
-  const pageName = requisicao.body.pageName
-  const idR = requisicao.body.id
-  try{
+rotas.post('/add-pages', async function(requisicao, resposta) {
+  const app_tokenR = requisicao.body.app_token;
+  const pageIdR = requisicao.body.pageId;
+  const pageNameR = requisicao.body.pageName;
+  const idR = requisicao.body.id;
 
-  }catch(erro){
-    console.log(erro)
-    resposta.status(500).json({ error: "Erro interno do servidor" });
+  // Verificação de dados de entrada
+  if (!app_tokenR || !pageIdR || !pageNameR || !idR) {
+    return resposta.status(400).json({ error: "Dados de entrada inválidos" });
   }
-})
 
-rotas.get('/get-facebook', async function(requisicao, resposta){
-  const idR = requisicao.query.id
-  try{
-    const user = facebookData.find(user => user.id === idR)
-    if(user){
-      resposta.json(user.pages)
+  try {
+    const user = facebookData.find(user => user.id === idR);
+    if (!user) {
+      return resposta.status(404).json({ error: "Usuário não encontrado" });
     }
-  }catch(erro){
+
+    if (user.pages.some(page => page.pageName === pageNameR)) {
+      return resposta.status(409).json({ message: "Dados já adicionados" });
+    }
+
+    const data = {
+      "app_token": app_tokenR,
+      "pageId": pageIdR,
+      "pageName": pageNameR
+    };
+    user.pages.push(data);
+    return resposta.status(202).json({ message: "Dados adicionados com sucesso" });
+  } catch (erro) {
+    console.log(erro);
+    return resposta.status(500).json({ error: "Erro interno do servidor" });
+  }
+});
+
+
+rotas.post('/get-facebook', async function(requisicao, resposta) {
+  const idR = requisicao.body.id;
+
+  if (!idR || typeof idR !== 'string') {
+    resposta.status(400).json({ error: "ID inválido" });
+    return;
+  }
+
+  try {
+    const user = facebookData.find(user => user.id === idR);
+    if (user) {
+      resposta.json(user);
+    } else {
+      resposta.status(404).json({ error: "Usuário não encontrado" });
+    }
+  } catch (erro) {
     console.log(erro);
     resposta.status(500).json({ error: "Erro interno do servidor" });
   }
-})
+});
+
 
 rotas.get('/get-access', async function(requisicao, resposta){
   const idR = requisicao.query.id;

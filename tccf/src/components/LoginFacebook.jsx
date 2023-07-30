@@ -11,24 +11,27 @@ export default class Facebook extends Component {
         console.log(response);
     
         try {
-            const app_token = response.accessToken; // Acesso ao accessToken diretamente
-            console.log(app_token);
-    
-            const pageId = response.accounts.data[0].id; // O array data contém as contas do usuário, o primeiro elemento é selecionado
-            console.log(pageId);
-    
-            const pageName = response.accounts.data[0].name; // O array data contém as contas do usuário, o primeiro elemento é selecionado
-            console.log(pageName);
+                const app_token = response.accessToken;
+                console.log(app_token);
+        
+                const pageId = response.accounts.data[0].id;
+                console.log(pageId);
+        
+                const pageName = response.accounts.data[0].name;
+                console.log(pageName);
 
-            const data = localStorage.getItem
-            const id = 
-            const resposta = await axios.post(`http://localhost:4000/add-pages`, {app_token, pageId, pageName}) 
+                let data = localStorage.getItem("ImpressTech")
+                data = JSON.parse(data)
+                const id = data.ID
+                const resposta = await axios.post(`http://localhost:4000/add-pages`, {app_token, pageId, pageName, id}) 
+                if(resposta.status === 202){
+                    this.props.getPages()
+                }
         } catch (error) {
             console.log(error);
         }
     };
     
-    componentClicked =  () => console.log("click")
     render() {
         let fbConnect;
 
@@ -40,7 +43,6 @@ export default class Facebook extends Component {
                 appId="2459647954195593"
                 autoLoad={true}
                 fields="accounts"
-                onClick={this.componentClicked}
                 callback={this.responseFacebook} />
             )
         }
