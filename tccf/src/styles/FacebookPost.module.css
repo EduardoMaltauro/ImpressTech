@@ -38,3 +38,10 @@
     border-radius: 5px;
     border-style: none;
   }
+
+.posts{
+    margin-top: 20px;
+    width: auto;
+    height: 100vh;
+    overflow: auto;
+}

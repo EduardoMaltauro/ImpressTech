@@ -1,9 +1,10 @@
 import express from "express";
+import axios from "axios";
 import users from "./data/users.js";
 import newId from "./functions/GerarIds.js";
 import facebookData from "./data/FacebookPost.js";
-import "dotenv/config.js";
 import "./functions/SystemTimeAccess.js";
+import FB from "./functions/SDKFacebook.js"
 
 const rotas = express.Router();
 
@@ -18,13 +19,53 @@ rotas.get('/', async function (requisicao, resposta) {
   }
 });
 
-rotas.post('/add-pages', async function(requisicao, resposta) {
+rotas.post('/get-post', async function (requisicao, resposta) {
+  const idR = requisicao.body.id;
+  const pageNameR = requisicao.body.selectPage;
+
+  if (!idR || !pageNameR) {
+    resposta.status(400).json({ error: "Dados de entrada inválidos" });
+  }
+  try {
+    const user = facebookData.find(user => user.id === idR);
+    let token,PageId
+    if (user) {
+      for (let i = 0; i < user.pages.length; i++) {
+        if (user.pages[i].pageName === pageNameR) {
+          token = user.pages[i].app_token
+          console.log(token)
+          PageId = user.pages[i].pageId
+          break;
+        }
+      }
+      axios.get('https://graph.facebook.com/v17.0/me/feed', {
+        params: {
+          fields: 'id,message,created_time',
+          limit: 100,
+          access_token: token
+        }
+      })
+        .then(response => {
+          resposta.json(response.data);
+        })
+        .catch(error => {
+          resposta.status(404);
+          console.error('Erro ao obter os posts da página:', error);
+        });
+    }
+  } catch (erro) {
+    console.log(erro);
+    resposta.status(500).json({ error: "Erro interno do servidor" });
+  }
+});
+
+
+rotas.post('/add-pages', async function (requisicao, resposta) {
   const app_tokenR = requisicao.body.app_token;
   const pageIdR = requisicao.body.pageId;
   const pageNameR = requisicao.body.pageName;
   const idR = requisicao.body.id;
 
-  // Verificação de dados de entrada
   if (!app_tokenR || !pageIdR || !pageNameR || !idR) {
     return resposta.status(400).json({ error: "Dados de entrada inválidos" });
   }
@@ -53,10 +94,10 @@ rotas.post('/add-pages', async function(requisicao, resposta) {
 });
 
 
-rotas.post('/get-facebook', async function(requisicao, resposta) {
+rotas.post('/get-facebook', async function (requisicao, resposta) {
   const idR = requisicao.body.id;
 
-  if (!idR || typeof idR !== 'string') {
+  if (!idR) {
     resposta.status(400).json({ error: "ID inválido" });
     return;
   }
@@ -75,7 +116,8 @@ rotas.post('/get-facebook', async function(requisicao, resposta) {
 });
 
 
-rotas.get('/get-access', async function(requisicao, resposta){
+
+rotas.get('/get-access', async function (requisicao, resposta) {
   const idR = requisicao.query.id;
   try {
     const user = users.find(user => user.id === idR)
@@ -87,14 +129,14 @@ rotas.get('/get-access', async function(requisicao, resposta){
     } else {
       resposta.status(404).json({ error: "Usuário não encontrado" });
     }
-  } catch(erro) {
+  } catch (erro) {
     console.log(erro);
     resposta.status(500).json({ error: "Erro interno do servidor" });
   }
 });
 
 
-rotas.get('/get-users', async function(requisicao, resposta){
+rotas.get('/get-users', async function (requisicao, resposta) {
   resposta.json(users)
 })
 
@@ -103,21 +145,21 @@ rotas.post('/enviar-login', async function (requisicao, resposta) {
   const senhaR = requisicao.body.senha;
   try {
     const user = users.find(user => user.senha === senhaR && user.email === emailR)
-    if(user){
-      if(user.access === false){
+    if (user) {
+      if (user.access === false) {
         user.access = true
         user.time_access = process.env.TIME_ACCESS;
-      }else{
+      } else {
         user.time_access = process.env.TIME_ACCESS
       }
-      const data = {id: user.id, access: user.access}
+      const data = { id: user.id, access: user.access }
       resposta.json(data)
-    }else{
+    } else {
       resposta.sendStatus(404)
     }
   } catch (erro) {
-      resposta.sendStatus(500)
-      console.log(erro)
+    resposta.sendStatus(500)
+    console.log(erro)
   }
 });
 
@@ -128,7 +170,7 @@ rotas.post("/enviar-registro", async function (requisicao, resposta) {
 
   try {
     const user = users.find(user => user.email === emailR)
-    if(!user){
+    if (!user) {
       const Newid = newId();
       const data = {
         "id": Newid,
@@ -138,7 +180,7 @@ rotas.post("/enviar-registro", async function (requisicao, resposta) {
         "time_access": 0
       }
       users.push(data)
-      const dataR = { id: data.id, name: data.name, email: data.email}
+      const dataR = { id: data.id, name: data.name, email: data.email }
       resposta.json(dataR)
 
       const dataFace = {
@@ -147,7 +189,7 @@ rotas.post("/enviar-registro", async function (requisicao, resposta) {
       }
       facebookData.push(dataFace)
 
-    }else{
+    } else {
       resposta.sendStatus(409)
     }
   } catch (erro) {
