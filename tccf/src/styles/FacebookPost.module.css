@@ -41,7 +41,14 @@
 
 .posts{
     margin-top: 20px;
+    margin-left: 15%;
+    padding-bottom: 100px;
     width: auto;
     height: 100vh;
-    overflow: auto;
+    overflow: scroll;
+}
+
+.bntRelPost{
+    border-style: none;
+    margin-left: 10px;
 }

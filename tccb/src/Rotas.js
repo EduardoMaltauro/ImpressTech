@@ -4,7 +4,8 @@ import users from "./data/users.js";
 import newId from "./functions/GerarIds.js";
 import facebookData from "./data/FacebookPost.js";
 import "./functions/SystemTimeAccess.js";
-import FB from "./functions/SDKFacebook.js"
+import "dotenv/config.js";
+import { verifyToken } from "./functions/SDKFacebook.js";
 
 const rotas = express.Router();
 
@@ -19,71 +20,115 @@ rotas.get('/', async function (requisicao, resposta) {
   }
 });
 
-rotas.post('/get-post', async function (requisicao, resposta) {
-  const idR = requisicao.body.id;
-  const pageNameR = requisicao.body.selectPage;
+rotas.post('/teste', async function(req,res){
+  let token = req.body.token
+  token = await verifyToken(token)
+  res.json({token:token})
+})
 
-  if (!idR || !pageNameR) {
-    resposta.status(400).json({ error: "Dados de entrada inválidos" });
+rotas.post('/del-post', async function (requisicao, resposta) {
+  const { idPost, selectPage, id } = requisicao.body;
+
+  if (!idPost || !selectPage || !id) {
+    return resposta.status(400).json({ error: "Dados de entrada inválidos" });
   }
-  try {
-    const user = facebookData.find(user => user.id === idR);
-    let token,PageId
-    if (user) {
-      for (let i = 0; i < user.pages.length; i++) {
-        if (user.pages[i].pageName === pageNameR) {
-          token = user.pages[i].app_token
-          console.log(token)
-          PageId = user.pages[i].pageId
-          break;
-        }
-      }
-      axios.get('https://graph.facebook.com/v17.0/me/feed', {
-        params: {
-          fields: 'id,message,created_time',
-          limit: 100,
-          access_token: token
-        }
-      })
-        .then(response => {
-          resposta.json(response.data);
-        })
-        .catch(error => {
-          resposta.status(404);
-          console.error('Erro ao obter os posts da página:', error);
-        });
+
+  const user = facebookData.find(user => user.id === id);
+  if (!user) {
+    return resposta.status(404).json({ error: "Usuário não encontrado" });
+  }
+
+  let token;
+  for (const page of user.pages) {
+    if (page.pageName === selectPage) {
+      token = await verifyToken(page.app_token);
+      break;
     }
-  } catch (erro) {
-    console.log(erro);
+  }
+
+  if (!token) {
+    return resposta.status(404).json({ error: "Página não encontrada para o usuário" });
+  }
+
+  try {
+    const response = await axios.delete(`https://graph.facebook.com/v17.0/${idPost}?access_token=${token}`);
+    if (response.status === 200) {
+      resposta.status(200).json("Post excluído com sucesso.");
+    } else {
+      resposta.status(404).json("Ocorreu um erro ao tentar excluir o post.");
+    }
+  } catch (error) {
+    console.log(error);
     resposta.status(500).json({ error: "Erro interno do servidor" });
   }
 });
 
+rotas.post('/get-post', async function (requisicao, resposta) {
+  const { id, selectPage } = requisicao.body;
 
-rotas.post('/add-pages', async function (requisicao, resposta) {
-  const app_tokenR = requisicao.body.app_token;
-  const pageIdR = requisicao.body.pageId;
-  const pageNameR = requisicao.body.pageName;
-  const idR = requisicao.body.id;
-
-  if (!app_tokenR || !pageIdR || !pageNameR || !idR) {
+  if (!id || !selectPage) {
     return resposta.status(400).json({ error: "Dados de entrada inválidos" });
   }
 
   try {
-    const user = facebookData.find(user => user.id === idR);
+    const user = facebookData.find(user => user.id === id);
+
     if (!user) {
       return resposta.status(404).json({ error: "Usuário não encontrado" });
     }
 
-    if (user.pages.some(page => page.pageName === pageNameR)) {
+    let token, PageId;
+    for (const page of user.pages) {
+      if (page.pageName === selectPage) {
+        PageId = page.pageId;
+        token = await verifyToken(page.app_token);
+        break;
+      }
+    }
+
+    if (!token || !PageId) {
+      return resposta.status(404).json({ error: "Página não encontrada para o usuário" });
+    }
+
+    const response = await axios.get('https://graph.facebook.com/v17.0/me/feed', {
+      params: {
+        fields: 'id,message,created_time,full_picture',
+        limit: 100,
+        access_token: token
+      }
+    });
+
+    resposta.status(200).json(response.data);
+
+  } catch (error) {
+    console.log(error);
+    resposta.status(500).json({ error: "Erro interno do servidor" });
+  }
+});
+
+rotas.post('/add-pages', async function (requisicao, resposta) {
+  const { app_token, pageId, pageName, id } = requisicao.body;
+
+  if (!app_token || !pageId || !pageName || !id) {
+    return resposta.status(400).json({ error: "Dados de entrada inválidos" });
+  }
+
+  await verifyToken(app_token);
+
+  try {
+    const user = facebookData.find(user => user.id === id);
+    if (!user) {
+      return resposta.status(404).json({ error: "Usuário não encontrado" });
+    }
+
+    if (user.pages.some(page => page.pageName === pageName)) {
       return resposta.status(409).json({ message: "Dados já adicionados" });
     }
 
     const data = {
-      "app_token": app_tokenR,
-      "pageId": pageIdR,
-      "pageName": pageNameR
+      "app_token": app_token,
+      "pageId": pageId,
+      "pageName": pageName
     };
     user.pages.push(data);
     return resposta.status(202).json({ message: "Dados adicionados com sucesso" });
@@ -92,6 +137,7 @@ rotas.post('/add-pages', async function (requisicao, resposta) {
     return resposta.status(500).json({ error: "Erro interno do servidor" });
   }
 });
+
 
 
 rotas.post('/get-facebook', async function (requisicao, resposta) {
@@ -202,4 +248,4 @@ rotas.get('*', function (requisicao, resposta) {
   resposta.sendStatus(404)
 });
 
-export default rotas;
+export default rotas

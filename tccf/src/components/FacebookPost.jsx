@@ -4,47 +4,67 @@ import styles from "../styles/FacebookPost.module.css";
 import LoginFacebook from "../components/LoginFacebook.jsx";
 import { format } from 'date-fns';
 
-export default function FecebookPost() {
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faRotateRight, faTrash } from '@fortawesome/free-solid-svg-icons'
+
+export default function FacebookPost() {
   const [type, setType] = useState("load");
   const [pageName, setPageName] = useState([]);
   const [selectPage, setSelectPage] = useState("");
   const [listPost, setListPost] = useState([])
 
-  async function getPost() {
-    console.log(listPost)
-    if(localStorage.getItem("ImpressTech")){
+  async function delPost(idPost) {
+    if (localStorage.getItem("ImpressTech")) {
       let data = JSON.parse(localStorage.getItem("ImpressTech"));
       let id = data.ID;
 
-      try{
-        const resposta = await axios.post(`http://localhost:4000/get-post`, {id, selectPage})
-        if(!resposta.data){
-          for(let i = 0; i < resposta.data.length; i++){
-            const id = resposta.data[i].id
-            let mensagem
-            if(!resposta.data[i].message){
-              mensagem = "Sem Texto"
-            }else{
-              mensagem = resposta.data[i].message
-            }
-            let created_time = resposta.data[i].created_time
-            let data = new Date(created_time)
-            data = format(data, "dd/MM/yy - HH:mm:ss")
-
-            const dados = {
-              "id": id,
-              "mensagem": mensagem,
-              "data": data
-            }
-            console.log(dados)
-            setListPost(dados)
-          }
+      try {
+        const resposta = await axios.post("http://localhost:4000/del-post", { idPost, selectPage, id })
+        setType("load")
+        if (resposta.status === 200) {
+          setType("comPages")
         }
-      }catch(erro){
+      } catch (erro) {
         console.log(erro)
       }
     }
   }
+
+  async function getPost() {
+    if (selectPage !== "" && localStorage.getItem("ImpressTech")) {
+      let data = JSON.parse(localStorage.getItem("ImpressTech"));
+      let id = data.ID;
+
+      try {
+        const resposta = await axios.post(`http://localhost:4000/get-post`, { id, selectPage });
+        if (resposta.data.data) {
+          setType("load")
+          const posts = resposta.data.data.map((post) => {
+            const idPost = post.id;
+            const mensagem = post.message || "Sem Texto";
+            const created_time = post.created_time;
+            const data = format(new Date(created_time), "dd/MM/yy - HH:mm:ss");
+            const imagem = post.full_picture || "/assets/sem-imagem.png"
+            const permDel = post.can_delete
+
+            return {
+              idPost: idPost,
+              mensagem: mensagem,
+              data: data,
+              imagem: imagem,
+              permDel: permDel
+            };
+          });
+
+          setListPost(posts);
+          setType("comPages")
+        }
+      } catch (erro) {
+        console.log(erro)
+      }
+    }
+  }
+
   async function getPages() {
     if (localStorage.getItem("ImpressTech")) {
       let data = JSON.parse(localStorage.getItem("ImpressTech"));
@@ -68,7 +88,7 @@ export default function FecebookPost() {
 
   useEffect(() => {
     getPages()
-  });
+  }, [])
 
   if (type === "semPages") {
     return (
@@ -85,22 +105,40 @@ export default function FecebookPost() {
   if (type === "comPages") {
     return (
       <div className={styles.index}>
-        <select className={styles.selectPage} onClick={(event) => { setSelectPage(event.target.value); getPost()}}>
+        <select className={styles.selectPage} onChange={(event) => { setSelectPage(event.target.value); getPost() }}>
+          <option value="">Escolha uma página</option>
           {pageName.map((option) => (
-            <option value={option}>
+            <option key={option} value={option}>
               {option}
             </option>
           ))}
         </select>
-        
+
+        <button className={styles.bntRelPost} onClick={() => {getPost()}}><FontAwesomeIcon icon={faRotateRight} spin></FontAwesomeIcon></button>
+
         <div className={styles.posts}>
           <div>
             {listPost.map((item) => (
-              <span id={item.id}>{item.mensagem} {item.data}</span>
+              <div key={item.idPost} id={item.idPost} className="card mb-3 text-bg-dark border-light" style={{ maxWidth: 540 }}>
+                <button onClick={() => { const id = item.idPost; delPost(id) }} className="btn btn-danger" style={{position:"absolute", left:"36vw", top:"5px"}}><FontAwesomeIcon icon={faTrash} bounce /></button>
+                <div className="row g-0">
+                  <div className="col-md-4">
+                    <img src={item.imagem} className="img-fluid rounded-start" alt="..." />
+                  </div>
+                  <div className="col-md-8">
+                    <div className="card-body">
+                      <h5 className="card-title">PUBLICAÇÃO</h5>
+                      <p className="card-text">{item.mensagem}</p>
+                      <div className="card-footer">
+                        <small className="text-body-dark">{item.data}</small>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             ))}
           </div>
         </div>
-          
       </div>
     );
   }
