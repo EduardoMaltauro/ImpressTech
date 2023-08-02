@@ -13,18 +13,33 @@ export default function FacebookPost() {
   const [selectPage, setSelectPage] = useState("");
   const [listPost, setListPost] = useState([])
 
+  function fncSelectPage(event){
+    setSelectPage(event)
+    getPost()
+  }
+
+  async function createPost(){
+    if(localStorage.get("ImpressTech")){
+      let data = JSON.parse(localStorage.getItem("ImpressTech"));
+      let id = data.ID;
+
+      
+    }
+  }
   async function delPost(idPost) {
     if (localStorage.getItem("ImpressTech")) {
       let data = JSON.parse(localStorage.getItem("ImpressTech"));
       let id = data.ID;
 
       try {
-        const resposta = await axios.post("http://localhost:4000/del-post", { idPost, selectPage, id })
         setType("load")
+        const resposta = await axios.post("http://localhost:4000/del-post", { idPost, selectPage, id })
         if (resposta.status === 200) {
+          getPost()
           setType("comPages")
         }
       } catch (erro) {
+        setType("comPages")
         console.log(erro)
       }
     }
@@ -38,7 +53,6 @@ export default function FacebookPost() {
       try {
         const resposta = await axios.post(`http://localhost:4000/get-post`, { id, selectPage });
         if (resposta.data.data) {
-          setType("load")
           const posts = resposta.data.data.map((post) => {
             const idPost = post.id;
             const mensagem = post.message || "Sem Texto";
@@ -105,13 +119,13 @@ export default function FacebookPost() {
   if (type === "comPages") {
     return (
       <div className={styles.index}>
-        <select className={styles.selectPage} onChange={(event) => { setSelectPage(event.target.value); getPost() }}>
-          <option value="">Escolha uma página</option>
-          {pageName.map((option) => (
-            <option key={option} value={option}>
-              {option}
-            </option>
+        <select className={styles.selectPage} onChange={(event) => { fncSelectPage(event.target.value)}}>
+        <option key="" value="">Escolha uma página</option>
+
+          {pageName.map((name) => (
+            <option key={name} value={name}>{name}</option>
           ))}
+
         </select>
 
         <button className={styles.bntRelPost} onClick={() => {getPost()}}><FontAwesomeIcon icon={faRotateRight} spin></FontAwesomeIcon></button>

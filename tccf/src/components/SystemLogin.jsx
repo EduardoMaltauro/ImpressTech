@@ -33,7 +33,8 @@ export default function SystemLogin(){
                 if(resposta.data.id && resposta.data.access){
                     let data = {
                         "ID": resposta.data.id,
-                        "ACCESS": resposta.data.access
+                        "ACCESS": resposta.data.access,
+                        "ONLINE": true
                     }
                     data = JSON.stringify(data)
                     localStorage.setItem("ImpressTech", data)

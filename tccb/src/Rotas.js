@@ -28,6 +28,7 @@ rotas.post('/teste', async function(req,res){
 
 rotas.post('/del-post', async function (requisicao, resposta) {
   const { idPost, selectPage, id } = requisicao.body;
+  console.log(selectPage)
 
   if (!idPost || !selectPage || !id) {
     return resposta.status(400).json({ error: "Dados de entrada inválidos" });
@@ -41,7 +42,7 @@ rotas.post('/del-post', async function (requisicao, resposta) {
   let token;
   for (const page of user.pages) {
     if (page.pageName === selectPage) {
-      token = await verifyToken(page.app_token);
+      token = page.app_token
       break;
     }
   }
@@ -56,6 +57,7 @@ rotas.post('/del-post', async function (requisicao, resposta) {
       resposta.status(200).json("Post excluído com sucesso.");
     } else {
       resposta.status(404).json("Ocorreu um erro ao tentar excluir o post.");
+      console.log(response)
     }
   } catch (error) {
     console.log(error);
@@ -71,6 +73,7 @@ rotas.post('/get-post', async function (requisicao, resposta) {
   }
 
   try {
+    setType("load")
     const user = facebookData.find(user => user.id === id);
 
     if (!user) {
