@@ -12,7 +12,6 @@ export async function getNewToken(token) {
   try {
     const resposta = await axios.get(`https://graph.facebook.com/oauth/access_token`, {
       params: {
-        grant_type: 'fb_exchange_token',
         client_id: process.env.APPID,
         client_secret: process.env.APPSECRET,
         fb_exchange_token: token,

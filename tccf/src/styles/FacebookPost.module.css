@@ -50,5 +50,49 @@
 
 .bntRelPost{
     border-style: none;
+    border-radius: 10px;
+    font-size: 20px;
+    background-color: #fff;
+    text-align: center;
+    position: absolute;
+    margin-left: 10px;
+    margin-top: 16px;
+}
+
+.btnAdd{
+    border-style: none;
+    border-radius: 10px;
+    font-size: 20px;
+    background-color: #fff;
+    text-align: center;
+    position: absolute;
+    margin-left: 330px;
+    margin-top: 16px;
+}
+
+
+.divNewPost{
+    background-color: #2d3135;
+    border: #fff solid 1px;
+    border-radius: 5px;
+    width: 500px;
+    height: auto;
+    margin-left: 245px;
+    margin-top: 10px;
+    position:  relative;
+    font-size: 15px;
+    display: none;
+}
+
+.divNewPost input{
+    margin: 10px;
+    border-radius: 5px;
+    border-style: none;
+}
+
+.descricao{
+    width: 90%;
+    height: 100px;
     margin-left: 10px;
 }
+

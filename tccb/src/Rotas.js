@@ -20,15 +20,38 @@ rotas.get('/', async function (requisicao, resposta) {
   }
 });
 
-rotas.post('/teste', async function(req,res){
-  let token = req.body.token
-  token = await verifyToken(token)
-  res.json({token:token})
+rotas.post('/create-post', async function (requisicao, resposta){
+  const idR = requisicao.body.id
+
+  if(!id){
+    return resposta.status(400).json({ error: "Dados de entrada inválidos" });
+  }
+  const user = facebookData.find(user => user.id === idR)
+  let token;
+  for (const page of user.pages) {
+    if (page.pageName === selectPage) {
+      token = await verifyToken(page.app_token);
+      const pageId = page.pageId;
+      break;
+    }
+  }
+  if(user && token){
+    try{
+      const response = await axios.post(`https://graph.facebook.com/V17.0/${pageId}/feed?access_token=${token}`)
+      if(response.status === 200){
+        return resposta.status(200).json("Criado com suceso!")
+      }else{
+        return resposta.status(404).json("Erro ao criar!")
+      }
+    }catch(erro){
+      console.log(erro)
+      resposta.status(500).json({ error: "Erro interno do servidor" })
+    }
+  }
 })
 
 rotas.post('/del-post', async function (requisicao, resposta) {
   const { idPost, selectPage, id } = requisicao.body;
-  console.log(selectPage)
 
   if (!idPost || !selectPage || !id) {
     return resposta.status(400).json({ error: "Dados de entrada inválidos" });
@@ -42,7 +65,7 @@ rotas.post('/del-post', async function (requisicao, resposta) {
   let token;
   for (const page of user.pages) {
     if (page.pageName === selectPage) {
-      token = page.app_token
+      token = await verifyToken(page.app_token)
       break;
     }
   }
@@ -68,12 +91,12 @@ rotas.post('/del-post', async function (requisicao, resposta) {
 rotas.post('/get-post', async function (requisicao, resposta) {
   const { id, selectPage } = requisicao.body;
 
+
   if (!id || !selectPage) {
     return resposta.status(400).json({ error: "Dados de entrada inválidos" });
   }
 
   try {
-    setType("load")
     const user = facebookData.find(user => user.id === id);
 
     if (!user) {

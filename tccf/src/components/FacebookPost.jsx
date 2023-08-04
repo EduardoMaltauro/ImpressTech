@@ -5,51 +5,67 @@ import LoginFacebook from "../components/LoginFacebook.jsx";
 import { format } from 'date-fns';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faRotateRight, faTrash } from '@fortawesome/free-solid-svg-icons'
+import { faPlus, faRotateRight, faTrash } from '@fortawesome/free-solid-svg-icons'
 
 export default function FacebookPost() {
-  const [type, setType] = useState("load");
-  const [pageName, setPageName] = useState([]);
-  const [selectPage, setSelectPage] = useState("");
+  const [type, setType] = useState("load")
+  const [pageName, setPageName] = useState([])
+  const [selectPage, setSelectPage] = useState("")
   const [listPost, setListPost] = useState([])
+  const [selectValue, setSelectedValue] = useState("");
 
-  function fncSelectPage(event){
-    setSelectPage(event)
-    getPost()
+
+  function setSelect(value) {
+    setSelectedValue(value)
+    const select = document.getElementById("select")
+    if (selectValue === selectPage && select) {
+      select.value = selectValue
+    }
+
   }
-
-  async function createPost(){
-    if(localStorage.get("ImpressTech")){
+  async function createPost() {
+    if (localStorage.get("ImpressTech")) {
       let data = JSON.parse(localStorage.getItem("ImpressTech"));
       let id = data.ID;
 
-      
+      try {
+        const resposta = await axios.post("http://localhost:4000/", { id })
+
+        if (resposta.data) {
+          getPost()
+        }
+      } catch (erro) {
+        console.log(erro)
+      }
+
     }
   }
   async function delPost(idPost) {
     if (localStorage.getItem("ImpressTech")) {
       let data = JSON.parse(localStorage.getItem("ImpressTech"));
       let id = data.ID;
-
       try {
-        setType("load")
         const resposta = await axios.post("http://localhost:4000/del-post", { idPost, selectPage, id })
         if (resposta.status === 200) {
-          getPost()
-          setType("comPages")
+          getPost(selectPage)
         }
       } catch (erro) {
-        setType("comPages")
         console.log(erro)
       }
     }
   }
 
-  async function getPost() {
-    if (selectPage !== "" && localStorage.getItem("ImpressTech")) {
+  async function getPost(selectPage) {
+    setSelectPage(selectPage)
+    setType("load")
+
+    if (selectPage === "") {
+      setListPost([])
+      setType("comPages")
+    }
+    if (localStorage.getItem("ImpressTech") && selectPage !== "") {
       let data = JSON.parse(localStorage.getItem("ImpressTech"));
       let id = data.ID;
-
       try {
         const resposta = await axios.post(`http://localhost:4000/get-post`, { id, selectPage });
         if (resposta.data.data) {
@@ -75,6 +91,7 @@ export default function FacebookPost() {
         }
       } catch (erro) {
         console.log(erro)
+        setType("comPages")
       }
     }
   }
@@ -104,6 +121,23 @@ export default function FacebookPost() {
     getPages()
   }, [])
 
+  function divPost() {
+    if (document.getElementById("divCreatePost").style.display === "flex") {
+      document.getElementById("divCreatePost").style.display = "none";
+    } else {
+      document.getElementById("divCreatePost").style.display = "flex";
+    }
+  }
+
+  function inputData() {
+    if (document.getElementById("data").style.display === "flex") {
+      document.getElementById("data").style.display = "none"
+    } else {
+      document.getElementById("data").style.display = "flex"
+    }
+  }
+
+
   if (type === "semPages") {
     return (
       <div className={styles.index}>
@@ -118,23 +152,39 @@ export default function FacebookPost() {
 
   if (type === "comPages") {
     return (
+
       <div className={styles.index}>
-        <select className={styles.selectPage} onChange={(event) => { fncSelectPage(event.target.value)}}>
-        <option key="" value="">Escolha uma página</option>
 
+        <button className={styles.btnAdd} onClick={() => { divPost() }}><FontAwesomeIcon icon={faPlus} beat></FontAwesomeIcon></button>
+
+        <select value={selectValue} id="select" className={styles.selectPage} onChange={(event) => { getPost(event.target.value); setSelect(event.target.value) }}>
+          <option value="">Escolha uma página</option>
           {pageName.map((name) => (
-            <option key={name} value={name}>{name}</option>
+            <option key="" value={name}>{name}</option>
           ))}
-
         </select>
 
-        <button className={styles.bntRelPost} onClick={() => {getPost()}}><FontAwesomeIcon icon={faRotateRight} spin></FontAwesomeIcon></button>
+        <button className={styles.bntRelPost} onClick={() => { getPost(selectPage) }}><FontAwesomeIcon icon={faRotateRight} spin></FontAwesomeIcon></button>
 
+        <div className={styles.divNewPost} id="divCreatePost">
+          <form>
+            <input type="file" />
+            <textarea className={styles.descricao} />
+            <br />
+            <input type="checkbox" id="agendar" name="agendar" onClick={() => { inputData() }} />
+            <label htmlFor="agendar"> Agendar?</label>
+            <br />
+            <input style={{ display: "none" }} id="data" type="datetime-local" />
+            <br />
+            <input type="submit" />
+          </form>
+        </div>
+        
         <div className={styles.posts}>
           <div>
             {listPost.map((item) => (
               <div key={item.idPost} id={item.idPost} className="card mb-3 text-bg-dark border-light" style={{ maxWidth: 540 }}>
-                <button onClick={() => { const id = item.idPost; delPost(id) }} className="btn btn-danger" style={{position:"absolute", left:"36vw", top:"5px"}}><FontAwesomeIcon icon={faTrash} bounce /></button>
+                <button onClick={() => { const id = item.idPost; delPost(id) }} className="btn btn-danger" style={{ position: "absolute", left: "36vw", top: "5px" }}><FontAwesomeIcon icon={faTrash} bounce /></button>
                 <div className="row g-0">
                   <div className="col-md-4">
                     <img src={item.imagem} className="img-fluid rounded-start" alt="..." />
