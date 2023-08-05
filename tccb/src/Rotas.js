@@ -1,24 +1,72 @@
 import express from "express";
 import axios from "axios";
 import users from "./data/users.js";
-import newId from "./functions/GerarIds.js";
+import { newId } from "./functions/SystemLogin.js";
 import facebookData from "./data/FacebookPost.js";
+import { verifyToken } from "./functions/SDKFacebook.js";
 import "./functions/SystemTimeAccess.js";
 import "dotenv/config.js";
-import { verifyToken } from "./functions/SDKFacebook.js";
 
 const rotas = express.Router();
-
 rotas.use(express.json());
 
+//Rotas Revisadas
+//OK
 rotas.get('/', async function (requisicao, resposta) {
   try {
-    resposta.sendStatus(200);
+    resposta.sendStatus(200)
   } catch (erro) {
-    resposta.sendStatus(500);
+    resposta.status(500).json({ erro: "Erro interno do servidor" })
+    console.log(erro)
+  }
+})
+
+//OK
+rotas.get('*', function (requisicao, resposta) {
+  resposta.sendStatus(404)
+})
+
+
+rotas.post("/enviar-registro", async function (req, res) {
+  const {emailR, senhaR, nameR} = req.body
+
+  try {
+    const user = users.find(user => user.email === emailR)
+    if (!user) {
+      const id = await newId();
+      if(id === 0){
+        res.status(507).json({erro: "Servidor possui número maximo de usuários cadastrados permitido"})
+      }
+      const data = {
+        "id": id,
+        "name": nameR,
+        "email": emailR,
+        "senha": senhaR,
+        "time_access": 0
+      }
+      users.push(data)
+      const dataR = { id: data.id, name: data.name, email: data.email }
+      res.json(dataR)
+
+      const dataFace = {
+        "id": data.id,
+        "pages": []
+      }
+      facebookData.push(dataFace)
+
+    } else {
+      res.sendStatus(409).json({aviso: "Esses dados já estão cadastrados no sitema"})
+    }
+  } catch (erro) {
     console.log(erro);
+    res.status(500).json({ error: "Erro interno do servidor" })
   }
 });
+
+
+
+
+
 
 rotas.post('/create-post', async function (requisicao, resposta){
   const idR = requisicao.body.id
@@ -233,45 +281,6 @@ rotas.post('/enviar-login', async function (requisicao, resposta) {
     resposta.sendStatus(500)
     console.log(erro)
   }
-});
-
-rotas.post("/enviar-registro", async function (requisicao, resposta) {
-  const emailR = requisicao.body.email;
-  const senhaR = requisicao.body.senha;
-  const nameR = requisicao.body.name;
-
-  try {
-    const user = users.find(user => user.email === emailR)
-    if (!user) {
-      const Newid = newId();
-      const data = {
-        "id": Newid,
-        "name": nameR,
-        "email": emailR,
-        "senha": senhaR,
-        "time_access": 0
-      }
-      users.push(data)
-      const dataR = { id: data.id, name: data.name, email: data.email }
-      resposta.json(dataR)
-
-      const dataFace = {
-        "id": data.id,
-        "pages": []
-      }
-      facebookData.push(dataFace)
-
-    } else {
-      resposta.sendStatus(409)
-    }
-  } catch (erro) {
-    resposta.sendStatus(500);
-    console.log(erro);
-  }
-});
-
-rotas.get('*', function (requisicao, resposta) {
-  resposta.sendStatus(404)
 });
 
 export default rotas
