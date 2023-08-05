@@ -12,26 +12,26 @@ rotas.use(express.json());
 
 //Rotas Revisadas
 //OK
-rotas.get('/', async function (requisicao, resposta) {
+rotas.get('/', async function (req, res) {
   try {
-    resposta.sendStatus(200)
+    res.sendStatus(200)
   } catch (erro) {
-    resposta.status(500).json({ erro: "Erro interno do servidor" })
+    res.status(500).json({ erro: "Erro interno do servidor" })
     console.log(erro)
   }
 })
 
 //OK
-rotas.get('*', function (requisicao, resposta) {
-  resposta.sendStatus(404)
+rotas.get('*', function (req, res) {
+  res.sendStatus(404)
 })
 
-
+//OK
 rotas.post("/enviar-registro", async function (req, res) {
-  const {emailR, senhaR, nameR} = req.body
+  const {email, senha, name} = req.body
 
   try {
-    const user = users.find(user => user.email === emailR)
+    const user = users.find(user => user.email === email)
     if (!user) {
       const id = await newId();
       if(id === 0){
@@ -39,9 +39,9 @@ rotas.post("/enviar-registro", async function (req, res) {
       }
       const data = {
         "id": id,
-        "name": nameR,
-        "email": emailR,
-        "senha": senhaR,
+        "name": name,
+        "email": email,
+        "senha": senha,
         "time_access": 0
       }
       users.push(data)
@@ -58,10 +58,73 @@ rotas.post("/enviar-registro", async function (req, res) {
       res.sendStatus(409).json({aviso: "Esses dados já estão cadastrados no sitema"})
     }
   } catch (erro) {
-    console.log(erro);
-    res.status(500).json({ error: "Erro interno do servidor" })
+    console.log(erro)
+    res.status(500).json({ erro: "Erro interno do servidor" })
   }
 });
+
+//OK
+rotas.post('/enviar-login', async function (req, res) {
+  const {email, senha} = req.body;
+  try {
+    const user = users.find(user => user.senha === senha && user.email === email)
+    if (user) {
+      if (user.access === false) {
+        user.access = true
+        user.time_access = process.env.TIME_ACCESS;
+      } else {
+        user.time_access = process.env.TIME_ACCESS
+      }
+      const data = { id: user.id, access: user.access }
+      res.json(data)
+    } else {
+      res.sendStatus(404)
+    }
+  } catch (erro) {
+    console.log(erro)
+    res.status(500).json({ erro: "Erro interno do servidor" })
+  }
+})
+
+//OK
+rotas.get('/get-access', async function (req, res) {
+  const id = req.query
+  try {
+    const user = users.find(user => user.id === id)
+    if (user) {
+      const data = {
+        "access": user.access
+      }
+      return res.json(data)
+    } else {
+      return res.status(404).json({ erro: "Usuário não encontrado" })
+    }
+  } catch (erro) {
+    console.log(erro)
+    resposta.status(500).json({ erro: "Erro interno do servidor" })
+  }
+})
+
+//OK
+rotas.get('/get-facebook', async function (req, res) {
+  const id = req.query;
+
+  if (!id) {
+    return res.status(400).json({ error: "ID inválido" });
+  }
+
+  try {
+    const user = facebookData.find(user => user.id === id);
+    if (user) {
+      return res.json(user);
+    } else {
+      return res.status(404).json({ erro: "Usuário não encontrado" })
+    }
+  } catch (erro) {
+    console.log(erro)
+    resposta.status(500).json({ erro: "Erro interno do servidor" })
+  }
+})
 
 
 
@@ -209,77 +272,6 @@ rotas.post('/add-pages', async function (requisicao, resposta) {
   } catch (erro) {
     console.log(erro);
     return resposta.status(500).json({ error: "Erro interno do servidor" });
-  }
-});
-
-
-
-rotas.post('/get-facebook', async function (requisicao, resposta) {
-  const idR = requisicao.body.id;
-
-  if (!idR) {
-    resposta.status(400).json({ error: "ID inválido" });
-    return;
-  }
-
-  try {
-    const user = facebookData.find(user => user.id === idR);
-    if (user) {
-      resposta.json(user);
-    } else {
-      resposta.status(404).json({ error: "Usuário não encontrado" });
-    }
-  } catch (erro) {
-    console.log(erro);
-    resposta.status(500).json({ error: "Erro interno do servidor" });
-  }
-});
-
-
-
-rotas.get('/get-access', async function (requisicao, resposta) {
-  const idR = requisicao.query.id;
-  try {
-    const user = users.find(user => user.id === idR)
-    if (user) {
-      const data = {
-        "access": user.access
-      };
-      resposta.json(data);
-    } else {
-      resposta.status(404).json({ error: "Usuário não encontrado" });
-    }
-  } catch (erro) {
-    console.log(erro);
-    resposta.status(500).json({ error: "Erro interno do servidor" });
-  }
-});
-
-
-rotas.get('/get-users', async function (requisicao, resposta) {
-  resposta.json(users)
-})
-
-rotas.post('/enviar-login', async function (requisicao, resposta) {
-  const emailR = requisicao.body.email;
-  const senhaR = requisicao.body.senha;
-  try {
-    const user = users.find(user => user.senha === senhaR && user.email === emailR)
-    if (user) {
-      if (user.access === false) {
-        user.access = true
-        user.time_access = process.env.TIME_ACCESS;
-      } else {
-        user.time_access = process.env.TIME_ACCESS
-      }
-      const data = { id: user.id, access: user.access }
-      resposta.json(data)
-    } else {
-      resposta.sendStatus(404)
-    }
-  } catch (erro) {
-    resposta.sendStatus(500)
-    console.log(erro)
   }
 });
 
