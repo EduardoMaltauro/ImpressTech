@@ -9,13 +9,10 @@ class LoginFacebook extends Component {
   
     try {
         const app_token = response.data.accounts.data[0].access_token
-        console.log(app_token)
     
         const pageId = response.data.accounts.data[0].id;
-        console.log(pageId);
     
         const pageName = response.data.accounts.data[0].name;
-        console.log(pageName);
   
         let data = localStorage.getItem("ImpressTech");
         data = JSON.parse(data);

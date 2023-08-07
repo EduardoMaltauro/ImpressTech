@@ -25,7 +25,7 @@ export default function SystemLogin(){
         },10000)  
     }
 
-    async function System(event, mode){
+    async function System(mode){
         if(mode === "login"){
             try{
                 setType("load")
@@ -71,7 +71,7 @@ export default function SystemLogin(){
     if(type === "login"){
         return<>
 
-            <form onSubmit={(event) => System(event, "login")}>
+            <form onSubmit={(event) => System("login")}>
                 <div className={styles.inputs}>
                 <input className={styles.impuser} type="email" placeholder="Email" required value={email} onChange={(event) => setEmail(event.target.value)}/>
                     <input className={styles.imppass} type="password" placeholder="Senha" required value={senha} onChange={(event) => setSenha(event.target.value)}/>
@@ -90,7 +90,7 @@ export default function SystemLogin(){
     }
     if(type === "register"){
         return<>
-            <form onSubmit={(event) => System(event, "resgister")}>
+            <form onSubmit={(event) => System("resgister")}>
                 <div className={styles.inputs}>
                     <input className={styles.impuser} type="text" placeholder="Nome" required onChange={(event) => setName(event.target.value)}/>
                     <input className={styles.impuser} type="email" placeholder="Email" required onChange={(event) => setEmail(event.target.value)}/>

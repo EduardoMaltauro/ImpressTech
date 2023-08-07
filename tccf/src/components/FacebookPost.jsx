@@ -1,18 +1,21 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect} from "react";
 import axios from "axios";
 import styles from "../styles/FacebookPost.module.css";
 import LoginFacebook from "../components/LoginFacebook.jsx";
 import { format } from 'date-fns';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPlus, faRotateRight, faTrash } from '@fortawesome/free-solid-svg-icons'
+import {faPlus, faRotateRight, faTrash } from '@fortawesome/free-solid-svg-icons'
 
 export default function FacebookPost() {
   const [type, setType] = useState("load")
   const [pageName, setPageName] = useState([])
   const [selectPage, setSelectPage] = useState("")
   const [listPost, setListPost] = useState([])
-  const [selectValue, setSelectedValue] = useState("");
+  const [selectValue, setSelectedValue] = useState("")
+  const [mensagemPost, setMensagemPost] = useState("")
+  const [imgPost, setImgPost] = useState(null)
+  const [dataPost, setDataPost] = useState("")
 
 
   function setSelect(value) {
@@ -24,15 +27,19 @@ export default function FacebookPost() {
 
   }
   async function createPost() {
-    if (localStorage.get("ImpressTech")) {
+    if (localStorage.getItem("ImpressTech")) {
       let data = JSON.parse(localStorage.getItem("ImpressTech"));
       let id = data.ID;
 
       try {
-        const resposta = await axios.post("http://localhost:4000/", { id })
+        // let img = new FormData()
+        // img.append("file", imgPost)
+        // console.log(img, imgPost)
+       const resposta = await axios.post("http://localhost:4000/create-post",{ file: imgPost, id, selectPage, mensagemPost, dataPost })
 
-        if (resposta.data) {
-          getPost()
+        if (resposta.status === 201) {
+          divPost()
+          getPages(selectPage)
         }
       } catch (erro) {
         console.log(erro)
@@ -45,12 +52,14 @@ export default function FacebookPost() {
       let data = JSON.parse(localStorage.getItem("ImpressTech"));
       let id = data.ID;
       try {
+        setType("load")
         const resposta = await axios.post("http://localhost:4000/del-post", { idPost, selectPage, id })
         if (resposta.status === 200) {
           getPost(selectPage)
         }
       } catch (erro) {
         console.log(erro)
+        setType("comPeges")
       }
     }
   }
@@ -67,26 +76,29 @@ export default function FacebookPost() {
       let data = JSON.parse(localStorage.getItem("ImpressTech"));
       let id = data.ID;
       try {
-        const resposta = await axios.post(`http://localhost:4000/get-post`, { id, selectPage });
+        const resposta = await axios.get(`http://localhost:4000/get-post`, {
+          params: {
+            id, 
+            selectPage
+          }
+        })
         if (resposta.data.data) {
           const posts = resposta.data.data.map((post) => {
             const idPost = post.id;
-            const mensagem = post.message || "Sem Texto";
+            const mensagem = post.message || "Sem Texto"
             const created_time = post.created_time;
-            const data = format(new Date(created_time), "dd/MM/yy - HH:mm:ss");
+            const data = format(new Date(created_time), "dd/MM/yy - HH:mm:ss")
             const imagem = post.full_picture || "/assets/sem-imagem.png"
-            const permDel = post.can_delete
 
             return {
               idPost: idPost,
               mensagem: mensagem,
               data: data,
               imagem: imagem,
-              permDel: permDel
-            };
-          });
+            }
+          })
 
-          setListPost(posts);
+          setListPost(posts)
           setType("comPages")
         }
       } catch (erro) {
@@ -102,7 +114,11 @@ export default function FacebookPost() {
       let id = data.ID;
 
       try {
-        const resposta = await axios.post(`http://localhost:4000/get-facebook`, { id })
+        const resposta = await axios.get(`http://localhost:4000/get-facebook`, {
+          params: {
+            id
+          }
+        })
 
         if (resposta.data.pages.length > 0) {
           setPageName(resposta.data.pages.map((page) => page.pageName));
@@ -122,11 +138,14 @@ export default function FacebookPost() {
   }, [])
 
   function divPost() {
-    if (document.getElementById("divCreatePost").style.display === "flex") {
-      document.getElementById("divCreatePost").style.display = "none";
-    } else {
-      document.getElementById("divCreatePost").style.display = "flex";
-    }
+    const divCreatePost = document.getElementById("divCreatePost")
+    if (divCreatePost.style.display === "flex") {
+        divCreatePost.style.display = "none";
+        console.log("A")
+      } else {
+        divCreatePost.style.display = "flex";
+        console.log("B")
+      }
   }
 
   function inputData() {
@@ -166,17 +185,22 @@ export default function FacebookPost() {
 
         <button className={styles.bntRelPost} onClick={() => { getPost(selectPage) }}><FontAwesomeIcon icon={faRotateRight} spin></FontAwesomeIcon></button>
 
-        <div className={styles.divNewPost} id="divCreatePost">
-          <form>
-            <input type="file" />
-            <textarea className={styles.descricao} />
-            <br />
+        <div className={styles.divNewPost} id="divCreatePost" style={{display: "none"}}>
+          <form onSubmit={(event) => { event.preventDefault(); createPost()}}>
+            <input type="file" onChange={(event) => {
+              const file = event.target.files[0]
+              console.log(file)
+              setImgPost(file)
+  
+            }}/>
+            <textarea className={styles.descricao}  required onChange={(event) => {setMensagemPost(event.target.value)}}/>
+            <br/>
             <input type="checkbox" id="agendar" name="agendar" onClick={() => { inputData() }} />
             <label htmlFor="agendar"> Agendar?</label>
-            <br />
-            <input style={{ display: "none" }} id="data" type="datetime-local" />
-            <br />
-            <input type="submit" />
+            <br/>
+            <input style={{ display: "none" }} id="data" type="datetime-local" onChange={(event) => {setDataPost(event.target.value)}}/>
+            <br/>
+            <button>Enviar</button>
           </form>
         </div>
         

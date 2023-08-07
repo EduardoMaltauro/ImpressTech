@@ -11,6 +11,7 @@ const servidor = express()
 // configurando o servidor
 servidor.use(cors()) 
 servidor.use(express.json()) 
+servidor.use(express.urlencoded({ extended: true}))
 
 // incluindo as rotas
 servidor.use(Rotas)
