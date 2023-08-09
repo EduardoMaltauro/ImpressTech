@@ -132,10 +132,12 @@ rotas.get('/get-facebook', async function (req, res) {
 
 
 //...
-rotas.post('/create-post', multer(multerConfig).single("file"), async function (req, res){
+//multer(multerConfig).single("file"),
+rotas.post('/create-post', async function (req, res){
   console.log(req.file)
-  
-  //let imgPost = req.file.path
+  // if(req.file){
+  //   imgPost = req.file.path
+  // }
   // const { id, selectPage, mensagemPost, dataPost } = req.body
 
   // if(imgPost){

@@ -7,7 +7,9 @@ import { format } from 'date-fns';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {faPlus, faRotateRight, faTrash } from '@fortawesome/free-solid-svg-icons'
 
+
 export default function FacebookPost() {
+
   const [type, setType] = useState("load")
   const [pageName, setPageName] = useState([])
   const [selectPage, setSelectPage] = useState("")
@@ -32,10 +34,17 @@ export default function FacebookPost() {
       let id = data.ID;
 
       try {
-        // let img = new FormData()
-        // img.append("file", imgPost)
-        // console.log(img, imgPost)
-       const resposta = await axios.post("http://localhost:4000/create-post",{ file: imgPost, id, selectPage, mensagemPost, dataPost })
+       const img = document.querySelector("#inputImg")
+       let file = new FormData()
+       file.append("file", img.files[0])
+       console.log(file)
+       
+       //{ file, id, selectPage, mensagemPost, dataPost }
+       const resposta = await axios.post("http://localhost:4000/create-post", file, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+       })
 
         if (resposta.status === 201) {
           divPost()
@@ -186,12 +195,11 @@ export default function FacebookPost() {
         <button className={styles.bntRelPost} onClick={() => { getPost(selectPage) }}><FontAwesomeIcon icon={faRotateRight} spin></FontAwesomeIcon></button>
 
         <div className={styles.divNewPost} id="divCreatePost" style={{display: "none"}}>
-          <form onSubmit={(event) => { event.preventDefault(); createPost()}}>
-            <input type="file" onChange={(event) => {
+          <form onSubmit={(event) => { event.preventDefault(); createPost()}} method="post" enctype="multipart/form-data">
+            <input id="inputImg" type="file" onChange={(event) => {
               const file = event.target.files[0]
               console.log(file)
               setImgPost(file)
-  
             }}/>
             <textarea className={styles.descricao}  required onChange={(event) => {setMensagemPost(event.target.value)}}/>
             <br/>
@@ -200,7 +208,7 @@ export default function FacebookPost() {
             <br/>
             <input style={{ display: "none" }} id="data" type="datetime-local" onChange={(event) => {setDataPost(event.target.value)}}/>
             <br/>
-            <button>Enviar</button>
+             <input type="submit"/>
           </form>
         </div>
         
