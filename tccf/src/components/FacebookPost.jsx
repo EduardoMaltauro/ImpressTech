@@ -34,13 +34,16 @@ export default function FacebookPost() {
       let id = data.ID;
 
       try {
-       const img = document.querySelector("#inputImg")
-       let file = new FormData()
-       file.append("file", img.files[0])
-       console.log(file)
+       let formData = new FormData()
+       formData.append("file", imgPost)
+       formData.append("id", id)
+       formData.append("selectPage", selectPage)
+       formData.append("mensagemPost", mensagemPost)
+       formData.append("dataPost", dataPost)
+       console.log(formData)
        
        //{ file, id, selectPage, mensagemPost, dataPost }
-       const resposta = await axios.post("http://localhost:4000/create-post", file, {
+       const resposta = await axios.post("http://localhost:4000/create-post", formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }

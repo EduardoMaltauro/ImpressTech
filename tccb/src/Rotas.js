@@ -132,78 +132,76 @@ rotas.get('/get-facebook', async function (req, res) {
 
 
 //...
-//multer(multerConfig).single("file"),
-rotas.post('/create-post', async function (req, res){
-  console.log(req.file)
-  // if(req.file){
-  //   imgPost = req.file.path
-  // }
-  // const { id, selectPage, mensagemPost, dataPost } = req.body
+rotas.post('/create-post', multer(multerConfig).single("file"), async function (req, res){
+  if(req.file){
+    imgPost = req.file.path
+  }
+  const { id, selectPage, mensagemPost, dataPost } = req.body
 
-  // if(imgPost){
-  //    await cloudinary.uploader.upload(imgPost, (erro, result) =>{
-  //     if(erro){
-  //       console.error('Erro ao fazer upload da imagem:', error)
-  //     }else{
-  //       console.log('Upload bem-sucedido! URL da imagem:', result.secure_url)
-  //       imgPost = result.secure_url
-  //     }
-  //   })
-  // }
+  if(imgPost){
+     await cloudinary.uploader.upload(imgPost, (erro, result) =>{
+      if(erro){
+        console.error('Erro ao fazer upload da imagem:', error)
+      }else{
+        console.log('Upload bem-sucedido! URL da imagem:', result.secure_url)
+        imgPost = result.secure_url
+      }
+    })
+  }
 
-  // if(!id || !selectPage || !mensagemPost){
-  //   return res.status(400).json({ erro: "Dados de entrada inválidos"})
-  // }
+  if(!id || !selectPage || !mensagemPost){
+    return res.status(400).json({ erro: "Dados de entrada inválidos"})
+  }
 
-  // const user = facebookData.find(user => user.id === id)
-  // if (!user) {
-  //   return res.status(404).json({ error: "Usuário não encontrado" })
-  // }
+  const user = facebookData.find(user => user.id === id)
+  if (!user) {
+    return res.status(404).json({ error: "Usuário não encontrado" })
+  }
    
-  // let token, pageId
-  // for (const page of user.pages) {
-  //   if (page.pageName === selectPage) {
-  //     token = await verifyToken(page.app_token)
-  //     pageId = page.pageId
-  //     break
-  //   }
-  // }
+  let token, pageId
+  for (const page of user.pages) {
+    if (page.pageName === selectPage) {
+      token = await verifyToken(page.app_token)
+      pageId = page.pageId
+      break
+    }
+  }
 
 
-  //   if(!dataPost && !imgPost){
-  //     console.log("Criando sem IMG")
-  //     try {
-  //       const response = await axios.post(`https://graph.facebook.com/v17.0/${pageId}/feed`, {
-  //         message: mensagemPost,
-  //         access_token: token
-  //       })
-  //       res.status(201).json({sucesso: "Post criado com sucesso!"})
-  //     }catch(erro){
-  //       console.log(erro)
-  //       res.status(500).json({ erro: "Erro interno do servidor" })
-  //     }
-  //   }
-  //   else if(!dataPost && imgPost){
-  //     console.log("Criando com IMG")
-  //     try{
-  //       const response = await axios.post(`https://graph.facebook.com/v17.0/${pageId}/photos`, {
-  //       message: mensagemPost,
-  //       access_token: token,
-  //       url: imgPost
-  //     })
-  //     if(response.data){
-  //       res.status(201).json({sucesso: "Post criado com sucesso!"})
-  //     }else{
-  //       res.status(500).json({erro: "Erro ao criar post"})
-  //     }
+    if(!dataPost && !imgPost){
+      console.log("Criando sem IMG")
+      try {
+        const response = await axios.post(`https://graph.facebook.com/v17.0/${pageId}/feed`, {
+          message: mensagemPost,
+          access_token: token
+        })
+        res.status(201).json({sucesso: "Post criado com sucesso!"})
+      }catch(erro){
+        console.log(erro)
+        res.status(500).json({ erro: "Erro interno do servidor" })
+      }
+    }
+    else if(!dataPost && imgPost){
+      console.log("Criando com IMG")
+      try{
+        const response = await axios.post(`https://graph.facebook.com/v17.0/${pageId}/photos`, {
+        message: mensagemPost,
+        access_token: token,
+        url: imgPost
+      })
+      if(response.data){
+        res.status(201).json({sucesso: "Post criado com sucesso!"})
+      }else{
+        res.status(500).json({erro: "Erro ao criar post"})
+      }
 
-  //     }catch(erro){
-  //       console.log(erro)
-  //       res.status(500).json({ erro: "Erro interno do servidor" })
-  //     }
-  //   }else{
-  //     //.....
-  //   }
+      }catch(erro){
+        console.log(erro)
+        res.status(500).json({ erro: "Erro interno do servidor" })
+      }
+    }else{
+      //.....
+    }
 })
 
 //OK
