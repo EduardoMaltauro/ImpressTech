@@ -133,10 +133,18 @@ rotas.get('/get-facebook', async function (req, res) {
 
 //...
 rotas.post('/create-post', multer(multerConfig).single("file"), async function (req, res){
+  let imgPost
   if(req.file){
     imgPost = req.file.path
   }
   const { id, selectPage, mensagemPost, dataPost } = req.body
+  if(!id || !selectPage || !mensagemPost){
+    return res.status(400).json({ erro: "Dados de entrada inválidos"})
+  }
+  const user = facebookData.find(user => user.id === id)
+  if (!user) {
+    return res.status(404).json({ error: "Usuário não encontrado" })
+  }
 
   if(imgPost){
      await cloudinary.uploader.upload(imgPost, (erro, result) =>{
@@ -148,15 +156,6 @@ rotas.post('/create-post', multer(multerConfig).single("file"), async function (
       }
     })
   }
-
-  if(!id || !selectPage || !mensagemPost){
-    return res.status(400).json({ erro: "Dados de entrada inválidos"})
-  }
-
-  const user = facebookData.find(user => user.id === id)
-  if (!user) {
-    return res.status(404).json({ error: "Usuário não encontrado" })
-  }
    
   let token, pageId
   for (const page of user.pages) {
@@ -166,7 +165,6 @@ rotas.post('/create-post', multer(multerConfig).single("file"), async function (
       break
     }
   }
-
 
     if(!dataPost && !imgPost){
       console.log("Criando sem IMG")
@@ -200,6 +198,7 @@ rotas.post('/create-post', multer(multerConfig).single("file"), async function (
         res.status(500).json({ erro: "Erro interno do servidor" })
       }
     }else{
+      console.log("NADA PARA FAZER")
       //.....
     }
 })

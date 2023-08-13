@@ -42,7 +42,6 @@ export default function FacebookPost() {
        formData.append("dataPost", dataPost)
        console.log(formData)
        
-       //{ file, id, selectPage, mensagemPost, dataPost }
        const resposta = await axios.post("http://localhost:4000/create-post", formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
