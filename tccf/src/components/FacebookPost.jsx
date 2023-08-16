@@ -34,6 +34,8 @@ export default function FacebookPost() {
       let id = data.ID;
 
       try {
+      setType("load")
+
        let formData = new FormData()
        formData.append("file", imgPost)
        formData.append("id", id)
@@ -48,9 +50,10 @@ export default function FacebookPost() {
         }
        })
 
+       getPages(selectPage)
         if (resposta.status === 201) {
           divPost()
-          getPages(selectPage)
+          setType("comPages")
         }
       } catch (erro) {
         console.log(erro)
@@ -65,12 +68,13 @@ export default function FacebookPost() {
       try {
         setType("load")
         const resposta = await axios.post("http://localhost:4000/del-post", { idPost, selectPage, id })
+        await getPost(selectPage)
         if (resposta.status === 200) {
-          getPost(selectPage)
+          setType("comPages")
         }
       } catch (erro) {
         console.log(erro)
-        setType("comPeges")
+        setType("comPages")
       }
     }
   }
@@ -152,10 +156,8 @@ export default function FacebookPost() {
     const divCreatePost = document.getElementById("divCreatePost")
     if (divCreatePost.style.display === "flex") {
         divCreatePost.style.display = "none";
-        console.log("A")
       } else {
         divCreatePost.style.display = "flex";
-        console.log("B")
       }
   }
 
