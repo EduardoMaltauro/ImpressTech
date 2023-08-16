@@ -198,7 +198,7 @@ rotas.post('/create-post', multer(multerConfig).single("file"), async function (
         res.status(500).json({ erro: "Erro interno do servidor" })
       }
     }else{
-      console.log("NADA PARA FAZER")
+      
       //.....
     }
 })

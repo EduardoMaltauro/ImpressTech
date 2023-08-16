@@ -3,13 +3,11 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import styles from"../styles/SystemLogin.module.css";
 import "../functions/SystemTimeAccess.js"
-export default function SystemLogin(){
-    useEffect(() => {
-        if(window.location.pathname === "/areacliente" && localStorage.getItem("ImpressTech")){
-            let data = JSON.parse(localStorage.getItem("ImpressTech"))
-            window.location.href = `https://localhost:3000/${data.ID}/painel`
+export default function SystemLogin(props){
+
+        if(localStorage.getItem("ImpressTech")){
+            this.props.Painel()
         }
-    }, [])
 
     const [type, setType] = useState("login");
     const [email, setEmail] = useState("");
@@ -37,7 +35,7 @@ export default function SystemLogin(){
                     }
                     data = JSON.stringify(data)
                     localStorage.setItem("ImpressTech", data)
-                    window.location.href = `https://localhost:3000/${resposta.data.id}/painel`
+                    this.props.Painel()
                 }
             }catch(erro){
                 console.log(erro)
@@ -55,7 +53,7 @@ export default function SystemLogin(){
                 setType("load")
                 const resposta = await axios.post("http://localhost:4000/enviar-registro", { email, senha, name });
                 if(resposta.data.id){
-                    window.location.href = `https://localhost:3000/${resposta.data.id}/painel`
+                    this.props.Painel()
                 }
             }catch(erro){
                 if (erro.response && erro.response.status === 409) {
