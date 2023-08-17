@@ -10,8 +10,9 @@ import axios from "axios"
 
 export async function getNewToken(token) {
   try {
-    const resposta = await axios.get(`https://graph.facebook.com/oauth/access_token`, {
+    const resposta = await axios.get(`https://graph.facebook.com/v17.0/oauth/access_token`, {
       params: {
+        grant_type: 'fb_exchange_token',
         client_id: process.env.APPID,
         client_secret: process.env.APPSECRET,
         fb_exchange_token: token,
@@ -24,7 +25,7 @@ export async function getNewToken(token) {
       getNewToken(token)
     }
   } catch (error) {
-    console.error('Erro ao obter o token de longo prazo:', error.message);
+    console.error('Erro ao obter o token:', error.message);
     return null;
   }
 }

@@ -44,7 +44,7 @@
     margin-left: 15%;
     padding-bottom: 100px;
     width: auto;
-    height: 100vh;
+    height: 95vh;
     overflow: scroll;
 }
 
@@ -54,7 +54,7 @@
     font-size: 20px;
     background-color: #fff;
     text-align: center;
-    position: absolute;
+    position: fixed;
     margin-left: 10px;
     margin-top: 16px;
 }
@@ -65,8 +65,8 @@
     font-size: 20px;
     background-color: #fff;
     text-align: center;
-    position: absolute;
-    margin-left: 330px;
+    position: fixed;
+    margin-left: 50px;
     margin-top: 16px;
 }
 
@@ -75,12 +75,13 @@
     background-color: #2d3135;
     border: #fff solid 1px;
     border-radius: 5px;
-    width: 500px;
+    width: 550px;
     height: auto;
-    margin-left: 245px;
+    margin-left: 15%;
     margin-top: 10px;
-    position:  relative;
+    position:  absolute;
     font-size: 15px;
+    z-index: 1;
 }
 
 .divNewPost input{
@@ -93,5 +94,22 @@
     width: 90%;
     height: 100px;
     margin-left: 10px;
+}
+
+@media screen and (max-width: 768px)  {
+    .index{
+        margin-left: 0px;
+    }
+
+    .divNewPost{
+        margin-left: 20px;
+        width: 350px;
+    }
+
+    .posts{
+        margin-right: 50px;
+        height: 95vh;
+        overflow: scroll;
+    }
 }
 

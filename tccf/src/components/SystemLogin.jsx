@@ -1,12 +1,12 @@
 import React from "react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import axios from "axios";
 import styles from"../styles/SystemLogin.module.css";
 import "../functions/SystemTimeAccess.js"
 export default function SystemLogin(props){
 
         if(localStorage.getItem("ImpressTech")){
-            this.props.Painel()
+            props.Painel()
         }
 
     const [type, setType] = useState("login");
@@ -35,7 +35,7 @@ export default function SystemLogin(props){
                     }
                     data = JSON.stringify(data)
                     localStorage.setItem("ImpressTech", data)
-                    this.props.Painel()
+                    props.Painel()
                 }
             }catch(erro){
                 console.log(erro)
@@ -53,7 +53,7 @@ export default function SystemLogin(props){
                 setType("load")
                 const resposta = await axios.post("http://localhost:4000/enviar-registro", { email, senha, name });
                 if(resposta.data.id){
-                    this.props.Painel()
+                    props.Painel()
                 }
             }catch(erro){
                 if (erro.response && erro.response.status === 409) {

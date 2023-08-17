@@ -186,9 +186,6 @@ export default function FacebookPost() {
     return (
 
       <div className={styles.index}>
-
-        <button className={styles.btnAdd} onClick={() => { divPost() }}><FontAwesomeIcon icon={faPlus} beat></FontAwesomeIcon></button>
-
         <select value={selectValue} id="select" className={styles.selectPage} onChange={(event) => { getPost(event.target.value); setSelect(event.target.value) }}>
           <option value="">Escolha uma página</option>
           {pageName.map((name) => (
@@ -197,6 +194,7 @@ export default function FacebookPost() {
         </select>
 
         <button className={styles.bntRelPost} onClick={() => { getPost(selectPage) }}><FontAwesomeIcon icon={faRotateRight} spin></FontAwesomeIcon></button>
+        <button className={styles.btnAdd} onClick={() => { divPost() }}><FontAwesomeIcon icon={faPlus} beat></FontAwesomeIcon></button>
 
         <div className={styles.divNewPost} id="divCreatePost" style={{display: "none"}}>
           <form onSubmit={(event) => { event.preventDefault(); createPost()}} method="post" enctype="multipart/form-data">
@@ -206,11 +204,6 @@ export default function FacebookPost() {
               setImgPost(file)
             }}/>
             <textarea className={styles.descricao}  required onChange={(event) => {setMensagemPost(event.target.value)}}/>
-            <br/>
-            <input type="checkbox" id="agendar" name="agendar" onClick={() => { inputData() }} />
-            <label htmlFor="agendar"> Agendar?</label>
-            <br/>
-            <input style={{ display: "none" }} id="data" type="datetime-local" onChange={(event) => {setDataPost(event.target.value)}}/>
             <br/>
              <input type="submit"/>
           </form>

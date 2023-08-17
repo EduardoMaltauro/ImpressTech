@@ -9,8 +9,8 @@ export default function NavBar(props){
       return<>
         <nav className="navbar navbar-dark bg-dark fixed-top" style={{fontSize: 20}}>
           <div className="container-fluid">
-            <img src="../assets/FavIcon.png" alt="Icon" width="32px"/>
-            <a className="navbar-brand" href="/">ImpressTech</a>
+          <img src="../assets/FavIcon.png" alt="Icon" width="32px" onClick={props.Home} />
+            <a className="navbar-brand" onClick={props.Home}>ImpressTech</a>
             <button className="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasDarkNavbar" aria-controls="offcanvasDarkNavbar" aria-label="Toggle navigation">
               <span className="navbar-toggler-icon"></span>
             </button>
@@ -43,8 +43,8 @@ export default function NavBar(props){
       return<>
         <nav className="navbar navbar-dark bg-dark fixed-top" style={{fontSize: 20}}>
           <div className="container-fluid">
-            <img src="../assets/FavIcon.png" alt="Icon" width="32px" href="/"/>
-            <a className="navbar-brand" href="/">ImpressTech</a>
+          <img src="../assets/FavIcon.png" alt="Icon" width="32px" onClick={props.Home} />
+            <a className="navbar-brand" onClick={props.Home}>ImpressTech</a>
             <button className="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasDarkNavbar" aria-controls="offcanvasDarkNavbar" aria-label="Toggle navigation">
               <span className="navbar-toggler-icon"></span>
             </button>

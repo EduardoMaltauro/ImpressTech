@@ -21,7 +21,12 @@ cloudinary.config({
   api_key: '839692774586942', 
   api_secret: '6EVMbE20HyotPS1rzeOkT2pnCXQ' 
 });
-///////////////////////////////////////////
+
+const uploadOptions = {
+  public_id: 'unique_id_for_image', // Defina um identificador único para o recurso
+  context: 'expires_after=24h',     // Define o contexto de expiração
+};
+
 
 const rotas = express.Router();
 rotas.use(express.json());
@@ -131,13 +136,13 @@ rotas.get('/get-facebook', async function (req, res) {
 })
 
 
-//...
+//OK
 rotas.post('/create-post', multer(multerConfig).single("file"), async function (req, res){
   let imgPost
   if(req.file){
     imgPost = req.file.path
   }
-  const { id, selectPage, mensagemPost, dataPost } = req.body
+  const { id, selectPage, mensagemPost} = req.body
   if(!id || !selectPage || !mensagemPost){
     return res.status(400).json({ erro: "Dados de entrada inválidos"})
   }
@@ -147,7 +152,7 @@ rotas.post('/create-post', multer(multerConfig).single("file"), async function (
   }
 
   if(imgPost){
-     await cloudinary.uploader.upload(imgPost, (erro, result) =>{
+     await cloudinary.uploader.upload(imgPost, uploadOptions, (erro, result) =>{
       if(erro){
         console.error('Erro ao fazer upload da imagem:', error)
       }else{
@@ -166,7 +171,7 @@ rotas.post('/create-post', multer(multerConfig).single("file"), async function (
     }
   }
 
-    if(!dataPost && !imgPost){
+    if(!imgPost){
       console.log("Criando sem IMG")
       try {
         const response = await axios.post(`https://graph.facebook.com/v17.0/${pageId}/feed`, {
@@ -179,7 +184,7 @@ rotas.post('/create-post', multer(multerConfig).single("file"), async function (
         res.status(500).json({ erro: "Erro interno do servidor" })
       }
     }
-    else if(!dataPost && imgPost){
+    else if(imgPost){
       console.log("Criando com IMG")
       try{
         const response = await axios.post(`https://graph.facebook.com/v17.0/${pageId}/photos`, {
@@ -197,9 +202,6 @@ rotas.post('/create-post', multer(multerConfig).single("file"), async function (
         console.log(erro)
         res.status(500).json({ erro: "Erro interno do servidor" })
       }
-    }else{
-      
-      //.....
     }
 })
 
