@@ -3,10 +3,10 @@ import axios from "axios";
 import "dotenv/config.js";
 import multer from "multer";
 import multerConfig from "./config/multer.js";
+import fs from "fs";
 
 import users from "./data/users.js";
 import facebookData from "./data/FacebookPost.js";
-import post from "./data/post.js";
 
 import { verifyToken } from "./functions/SDKFacebook.js";
 import { newId } from "./functions/SystemLogin.js";
@@ -141,6 +141,25 @@ rotas.post('/create-post', multer(multerConfig).single("file"), async function (
   let imgPost
   if(req.file){
     imgPost = req.file.path
+    setTimeout(() => {
+      fs.unlink(req.file.path, (err) => {
+        if (err) {
+          console.error('Erro ao excluir o arquivo local:', err);
+        } else {
+          console.log('Arquivo excluído.');
+        }
+      });        
+    }, 60000);
+
+    await cloudinary.uploader.upload(imgPost, uploadOptions, (erro, result) =>{
+      if(erro){
+        console.error('Erro ao fazer upload da imagem:', error)
+        res.status(500).json({erro: "Erro ao enviar a imagem para o sistema"})
+      }else{
+        console.log('Upload bem-sucedido! URL da imagem:', result.secure_url)
+        imgPost = result.secure_url
+      }
+    })
   }
   const { id, selectPage, mensagemPost} = req.body
   if(!id || !selectPage || !mensagemPost){
@@ -151,17 +170,6 @@ rotas.post('/create-post', multer(multerConfig).single("file"), async function (
     return res.status(404).json({ error: "Usuário não encontrado" })
   }
 
-  if(imgPost){
-     await cloudinary.uploader.upload(imgPost, uploadOptions, (erro, result) =>{
-      if(erro){
-        console.error('Erro ao fazer upload da imagem:', error)
-      }else{
-        console.log('Upload bem-sucedido! URL da imagem:', result.secure_url)
-        imgPost = result.secure_url
-      }
-    })
-  }
-   
   let token, pageId
   for (const page of user.pages) {
     if (page.pageName === selectPage) {
