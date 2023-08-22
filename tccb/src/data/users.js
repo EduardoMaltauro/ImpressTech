@@ -4,8 +4,8 @@ const users = [
     "name": "Eduardo Luís Maltauro",
     "email": "eduardo@impresstech.com.br",
     "senha": "ADM23",
-    "time_access": 0,
-    "access": false
+    "time_access": 3600,
+    "access": true
   }
 ]
 

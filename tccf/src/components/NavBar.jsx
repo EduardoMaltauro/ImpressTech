@@ -30,7 +30,7 @@ export default function NavBar(props){
                   <li className="nav-item">
                     <a className="nav-link active text-danger" onClick={() => {
                       DelAccess()
-                      this.props.Home()
+                      props.Home()
                     }}><FontAwesomeIcon icon={faRightFromBracket} beat/> <strong>Sair</strong></a>
                   </li>
                 </ul>

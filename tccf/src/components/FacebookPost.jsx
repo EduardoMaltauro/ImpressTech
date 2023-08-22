@@ -17,7 +17,6 @@ export default function FacebookPost() {
   const [selectValue, setSelectedValue] = useState("")
   const [mensagemPost, setMensagemPost] = useState("")
   const [imgPost, setImgPost] = useState(null)
-  const [dataPost, setDataPost] = useState("")
 
 
   function setSelect(value) {
@@ -41,7 +40,6 @@ export default function FacebookPost() {
        formData.append("id", id)
        formData.append("selectPage", selectPage)
        formData.append("mensagemPost", mensagemPost)
-       formData.append("dataPost", dataPost)
        console.log(formData)
        
        const resposta = await axios.post("http://localhost:4000/create-post", formData, {
@@ -160,15 +158,6 @@ export default function FacebookPost() {
         divCreatePost.style.display = "flex";
       }
   }
-
-  function inputData() {
-    if (document.getElementById("data").style.display === "flex") {
-      document.getElementById("data").style.display = "none"
-    } else {
-      document.getElementById("data").style.display = "flex"
-    }
-  }
-
 
   if (type === "semPages") {
     return (

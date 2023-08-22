@@ -4,16 +4,17 @@ import "dotenv/config.js";
 import multer from "multer";
 import multerConfig from "./config/multer.js";
 import fs from "fs";
+import cheerio from "cheerio";
+import sslCertificate from "get-ssl-certificate";
 
 import users from "./data/users.js";
 import facebookData from "./data/FacebookPost.js";
+import siteData from "./data/SiteCheck.js";
 
 import { verifyToken } from "./functions/SDKFacebook.js";
 import { newId } from "./functions/SystemLogin.js";
 import "./functions/SystemTimeAccess.js";
 
-
-//TESTE
 import {v2 as cloudinary} from 'cloudinary';
           
 cloudinary.config({ 
@@ -180,7 +181,6 @@ rotas.post('/create-post', multer(multerConfig).single("file"), async function (
   }
 
     if(!imgPost){
-      console.log("Criando sem IMG")
       try {
         const response = await axios.post(`https://graph.facebook.com/v17.0/${pageId}/feed`, {
           message: mensagemPost,
@@ -193,7 +193,6 @@ rotas.post('/create-post', multer(multerConfig).single("file"), async function (
       }
     }
     else if(imgPost){
-      console.log("Criando com IMG")
       try{
         const response = await axios.post(`https://graph.facebook.com/v17.0/${pageId}/photos`, {
         message: mensagemPost,
@@ -311,7 +310,7 @@ rotas.post('/add-pages', async function (req, res) {
   try {
     const user = facebookData.find(user => user.id === id)
     if (!user) {
-      return resposta.status(404).json({ erro: "Usuário não encontrado" })
+      return res.status(404).json({ erro: "Usuário não encontrado" })
     }
 
     if (user.pages.some(page => page.pageName === pageName)) {
@@ -330,6 +329,70 @@ rotas.post('/add-pages', async function (req, res) {
     return res.status(500).json({ erro: "Erro interno do servidor" })
   }
 });
+
+//...
+rotas.post('/add-sites', async function (req, res) {
+  const {id, site} = req.body
+
+  if (!id || !site) {
+    return res.status(400).json({ erro: "Dados de entrada inválidos" })
+  }
+    const user = siteData.find(user => user.id === id)
+    if (!user) {
+      return res.status(404).json({ erro: "Usuário não encontrado" })
+    }else{
+      if (user.sites.find(userSite => userSite === site)) {
+        return res.status(409).json({ aviso: "Dados já adicionados" })
+      }else{
+        user.sites.push(site)
+        return res.status(202).json({ mensagem: "Dados adicionados com sucesso" })
+      }
+    }
+
+})
+
+//...
+rotas.get('/get-sites', async function(req, res) {
+  const id = req.query.id
+  if(!id){
+    return res.status(400).json({ erro: "Dados de entrada inválidos" })
+  }
+
+  const user = siteData.find(user => user.id === id)
+  if (!user) {
+    return resposta.status(404).json({ erro: "Usuário não encontrado" })
+  } else {
+    const data = []    
+    for(const site of user.sites){
+      let siteData = {}
+      const resposta = await axios.get(site)
+      if(resposta.status === 200){
+        const html = resposta.data;
+        const $ = cheerio.load(html);
+
+        const title = $('title').text();
+        const faviconLink = $('link[rel="icon"]').attr('href');
+        
+        let iniValidade, fimValidade
+        sslCertificate.get(site).then(function (ssl) {
+          iniValidade = ssl.valid_from
+          fimValidade = ssl.valid_to
+        })
+
+        siteData = {
+          "titulo": title,
+          "favIcon": faviconLink,
+          "iniValidade": iniValidade,
+          "fimValidade": fimValidade
+        }
+        data.push(siteData)
+      }
+    }
+
+    res.status(200).json(data)
+  }
+
+})
 
 //OK
 rotas.get('/', async function (req, res) {

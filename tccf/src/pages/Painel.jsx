@@ -3,6 +3,7 @@ import { useState } from "react";
 
 import styles from "../styles/Painel.module.css"
 import FecebookPost from "../components/FacebookPost.jsx";
+import SiteCheck from "../components/SiteCheck";
  
 export default function Painel(){
     const [page, setPage] = useState(0);
@@ -27,6 +28,7 @@ export default function Painel(){
                     <li id={styles.ativo} onClick={() => {setPage(1)}}>SITE CHECK</li>
                 </ul>
             </div>
+            <SiteCheck/>
         </>
     }
 }
