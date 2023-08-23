@@ -2,8 +2,9 @@ import React, { useState } from "react";
 import styles from "../styles/SiteCheck.module.css";
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faGlobe, faPlus } from '@fortawesome/free-solid-svg-icons'
+import { faGlobe, faPlus, faRotateRight } from '@fortawesome/free-solid-svg-icons'
 import axios from "axios";
+import { format } from 'date-fns';
 
 export default function SiteCheck() {
     const [type, setType] = useState("semSites")
@@ -15,16 +16,44 @@ export default function SiteCheck() {
             let data = JSON.parse(localStorage.getItem("ImpressTech"));
             let id = data.ID;
             try{
+                setType("load")
                 const resposta = await axios.get("http://localhost:4000/get-sites", {
                     params:{
                         id: id
                     }
                 })
-
                 if(resposta.status === 200){
-                    //....
+                    const dataSites = resposta.data.map((site) => {
+                        const titulo = site.titulo
+                        const favIcon = site.favIcon || "/assets/sem-imagem.png"
+
+                        let SSL = format(new Date(site.fimValidade), "dd/MM/yy - HH:mm:ss")
+                        const hj = new Date()
+                        if(SSL > hj ){
+                            SSL = "SSL OK"
+                        }else if(SSL < hj){
+                            SSL = "Vencido"
+                        }else{
+                            SSL = "Vence Hoje"
+                        }
+
+                        let Status
+                        if(titulo === "OFF"){
+                            Status = "ONLINE"
+                        }else{
+                            Status = "OFF"
+                        }
+
+                        return {
+                            titulo: titulo,
+                            favIcon: favIcon,
+                            SSL: 
+                        }
+                    })
+                    setSites(dataSites)
                 }
             }catch(erro){
+                setType("comSites")
                 console.log(erro)
             }
         }
@@ -37,12 +66,15 @@ export default function SiteCheck() {
             let id = data.ID;
 
             try{
+                setType("load")
                 const resposta = await axios.post("http://localhost:4000/add-sites", {id, site})
     
                 if(resposta.status === 202){
+                    getSites()
                     setType("comSites")
                 }
             }catch(erro){
+                setType("semSites")
                 console.log(erro)
             }
         }
@@ -66,7 +98,7 @@ export default function SiteCheck() {
                     <button onClick={() => { divSite() }}><FontAwesomeIcon icon={faGlobe} /> Adicionar</button>
                 </div>
                 <div className={styles.divNewSite} id="divAddSite" style={{ display: "none" }}>
-                    <form onSubmit={(event) => {event.preventDefault()}}>
+                    <form onSubmit={(event) => {event.preventDefault(); divSite(); addSites();}}>
                          <input  onChange={(event) => {SetSite(event.target.value)}}  id={styles.inputSite} type="url" placeholder="https://impresstech.com.br" required/>
                         <br />
                         <input type="submit"/>
@@ -79,25 +111,28 @@ export default function SiteCheck() {
     if (type === "comSites") {
         return<>
             <div className={styles.index}>
-                <button className={styles.btnAdd} onClick={() => { divSite() }}><FontAwesomeIcon icon={faPlus} beat></FontAwesomeIcon></button>
+                <button className={styles.btnAdd} onClick={() => {divSite()}}><FontAwesomeIcon icon={faPlus} beat></FontAwesomeIcon></button>
+                <button className={styles.bntRelSites} onClick={() => {getSites()}}><FontAwesomeIcon icon={faRotateRight} spin></FontAwesomeIcon></button>
                 <div className={styles.divNewSite} id="divAddSite" style={{ display: "none" }}>
-                    <form onSubmit={(event) => { event.preventDefault() }}>
+                    <form onSubmit={(event) => { event.preventDefault(); addSites()}}>
                         <input id={styles.inputSite} type="url" placeholder="https://impresstech.com.br" required />
                         <br />
                         <input type="submit" />
                     </form>
                 </div>
 
-                <div className={styles.divSites}>
+                {sites.map((site) => (
+                    <div className={styles.divSites}>
                     <div className={styles.divSite}>
                         <div className={styles.divSiteInfo}>
-                            <h4><b>Nome</b></h4>
+                            <h4><b>{site.titulo}</b></h4>
                             <label>Online</label>
                             <label>SSL</label>
                         </div>
-                        <img  className={styles.divSiteImg}src="/assets/sem-imagem.png" alt="Icon Site" style={{width:70}}/>
+                        <img  className={styles.divSiteImg} src={site.favIcon || "/assets/sem-imagem.png"} alt="Icon Site" style={{width:70}}/>
                     </div>
                 </div>
+                ))}
 
                     
             </div>

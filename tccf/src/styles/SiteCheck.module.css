@@ -89,3 +89,14 @@
     border-radius: 5px;
 }
 
+.bntRelSites    {
+    border-style: none;
+    border-radius: 10px;
+    font-size: 20px;
+    background-color: #fff;
+    text-align: center;
+    position: fixed;
+    margin-left: 10px;
+    margin-top: 16px;
+}
+

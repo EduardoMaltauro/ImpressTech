@@ -4,7 +4,7 @@ import "dotenv/config.js";
 import multer from "multer";
 import multerConfig from "./config/multer.js";
 import fs from "fs";
-import cheerio from "cheerio";
+import * as cheerio from "cheerio";
 import sslCertificate from "get-ssl-certificate";
 
 import users from "./data/users.js";
@@ -15,12 +15,12 @@ import { verifyToken } from "./functions/SDKFacebook.js";
 import { newId } from "./functions/SystemLogin.js";
 import "./functions/SystemTimeAccess.js";
 
-import {v2 as cloudinary} from 'cloudinary';
-          
-cloudinary.config({ 
-  cloud_name: 'dlgvouxpu', 
-  api_key: '839692774586942', 
-  api_secret: '6EVMbE20HyotPS1rzeOkT2pnCXQ' 
+import { v2 as cloudinary } from 'cloudinary';
+
+cloudinary.config({
+  cloud_name: 'dlgvouxpu',
+  api_key: '839692774586942',
+  api_secret: '6EVMbE20HyotPS1rzeOkT2pnCXQ'
 });
 
 const uploadOptions = {
@@ -34,14 +34,14 @@ rotas.use(express.json());
 
 //OK
 rotas.post("/enviar-registro", async function (req, res) {
-  const {email, senha, name} = req.body
+  const { email, senha, name } = req.body
 
   try {
     const user = users.find(user => user.email === email)
     if (!user) {
       const id = await newId();
-      if(id === 0){
-        res.status(507).json({erro: "Servidor possui número maximo de usuários cadastrados permitido"})
+      if (id === 0) {
+        res.status(507).json({ erro: "Servidor possui número maximo de usuários cadastrados permitido" })
       }
       const data = {
         "id": id,
@@ -61,7 +61,7 @@ rotas.post("/enviar-registro", async function (req, res) {
       facebookData.push(dataFace)
 
     } else {
-      res.sendStatus(409).json({aviso: "Esses dados já estão cadastrados no sitema"})
+      res.sendStatus(409).json({ aviso: "Esses dados já estão cadastrados no sitema" })
     }
   } catch (erro) {
     console.log(erro)
@@ -71,7 +71,7 @@ rotas.post("/enviar-registro", async function (req, res) {
 
 //OK
 rotas.post('/enviar-login', async function (req, res) {
-  const {email, senha} = req.body
+  const { email, senha } = req.body
   try {
     const user = users.find(user => user.senha === senha && user.email === email)
     if (user) {
@@ -96,7 +96,7 @@ rotas.post('/enviar-login', async function (req, res) {
 rotas.get('/get-access', function (req, res) {
   const { id } = req.query
 
-  if(!id){
+  if (!id) {
     return res.status(400).json({ erro: "Dados de entrada inválidos" });
   }
   try {
@@ -138,9 +138,9 @@ rotas.get('/get-facebook', async function (req, res) {
 
 
 //OK
-rotas.post('/create-post', multer(multerConfig).single("file"), async function (req, res){
+rotas.post('/create-post', multer(multerConfig).single("file"), async function (req, res) {
   let imgPost
-  if(req.file){
+  if (req.file) {
     imgPost = req.file.path
     setTimeout(() => {
       fs.unlink(req.file.path, (err) => {
@@ -149,22 +149,22 @@ rotas.post('/create-post', multer(multerConfig).single("file"), async function (
         } else {
           console.log('Arquivo excluído.');
         }
-      });        
+      });
     }, 60000);
 
-    await cloudinary.uploader.upload(imgPost, uploadOptions, (erro, result) =>{
-      if(erro){
+    await cloudinary.uploader.upload(imgPost, uploadOptions, (erro, result) => {
+      if (erro) {
         console.error('Erro ao fazer upload da imagem:', error)
-        res.status(500).json({erro: "Erro ao enviar a imagem para o sistema"})
-      }else{
+        res.status(500).json({ erro: "Erro ao enviar a imagem para o sistema" })
+      } else {
         console.log('Upload bem-sucedido! URL da imagem:', result.secure_url)
         imgPost = result.secure_url
       }
     })
   }
-  const { id, selectPage, mensagemPost} = req.body
-  if(!id || !selectPage || !mensagemPost){
-    return res.status(400).json({ erro: "Dados de entrada inválidos"})
+  const { id, selectPage, mensagemPost } = req.body
+  if (!id || !selectPage || !mensagemPost) {
+    return res.status(400).json({ erro: "Dados de entrada inválidos" })
   }
   const user = facebookData.find(user => user.id === id)
   if (!user) {
@@ -180,36 +180,36 @@ rotas.post('/create-post', multer(multerConfig).single("file"), async function (
     }
   }
 
-    if(!imgPost){
-      try {
-        const response = await axios.post(`https://graph.facebook.com/v17.0/${pageId}/feed`, {
-          message: mensagemPost,
-          access_token: token
-        })
-        res.status(201).json({sucesso: "Post criado com sucesso!"})
-      }catch(erro){
-        console.log(erro)
-        res.status(500).json({ erro: "Erro interno do servidor" })
-      }
+  if (!imgPost) {
+    try {
+      const response = await axios.post(`https://graph.facebook.com/v17.0/${pageId}/feed`, {
+        message: mensagemPost,
+        access_token: token
+      })
+      res.status(201).json({ sucesso: "Post criado com sucesso!" })
+    } catch (erro) {
+      console.log(erro)
+      res.status(500).json({ erro: "Erro interno do servidor" })
     }
-    else if(imgPost){
-      try{
-        const response = await axios.post(`https://graph.facebook.com/v17.0/${pageId}/photos`, {
+  }
+  else if (imgPost) {
+    try {
+      const response = await axios.post(`https://graph.facebook.com/v17.0/${pageId}/photos`, {
         message: mensagemPost,
         access_token: token,
         url: imgPost
       })
-      if(response.data){
-        res.status(201).json({sucesso: "Post criado com sucesso!"})
-      }else{
-        res.status(500).json({erro: "Erro ao criar post"})
+      if (response.data) {
+        res.status(201).json({ sucesso: "Post criado com sucesso!" })
+      } else {
+        res.status(500).json({ erro: "Erro ao criar post" })
       }
 
-      }catch(erro){
-        console.log(erro)
-        res.status(500).json({ erro: "Erro interno do servidor" })
-      }
+    } catch (erro) {
+      console.log(erro)
+      res.status(500).json({ erro: "Erro interno do servidor" })
     }
+  }
 })
 
 //OK
@@ -303,7 +303,7 @@ rotas.post('/add-pages', async function (req, res) {
 
   if (!app_token || !pageId || !pageName || !id) {
     return resposta.status(400).json({ erro: "Dados de entrada inválidos" })
-  }else{
+  } else {
     app_token = await verifyToken(app_token)
   }
 
@@ -332,29 +332,29 @@ rotas.post('/add-pages', async function (req, res) {
 
 //...
 rotas.post('/add-sites', async function (req, res) {
-  const {id, site} = req.body
-
+  const id = req.body.id
+  const site = req.body.site
   if (!id || !site) {
     return res.status(400).json({ erro: "Dados de entrada inválidos" })
   }
-    const user = siteData.find(user => user.id === id)
-    if (!user) {
-      return res.status(404).json({ erro: "Usuário não encontrado" })
-    }else{
-      if (user.sites.find(userSite => userSite === site)) {
-        return res.status(409).json({ aviso: "Dados já adicionados" })
-      }else{
-        user.sites.push(site)
-        return res.status(202).json({ mensagem: "Dados adicionados com sucesso" })
-      }
+  const user = siteData.find(user => user.id === id)
+  if (!user) {
+    return res.status(404).json({ erro: "Usuário não encontrado" })
+  } else {
+    if (user.sites.find(userSite => userSite === site)) {
+      return res.status(409).json({ aviso: "Dados já adicionados" })
+    } else {
+      user.sites.push(site)
+      return res.status(202).json({ mensagem: "Dados adicionados com sucesso" })
     }
+  }
 
 })
 
 //...
-rotas.get('/get-sites', async function(req, res) {
+rotas.get('/get-sites', async function (req, res) {
   const id = req.query.id
-  if(!id){
+  if (!id) {
     return res.status(400).json({ erro: "Dados de entrada inválidos" })
   }
 
@@ -362,21 +362,36 @@ rotas.get('/get-sites', async function(req, res) {
   if (!user) {
     return resposta.status(404).json({ erro: "Usuário não encontrado" })
   } else {
-    const data = []    
-    for(const site of user.sites){
+    const data = []
+    for (let site of user.sites) {
       let siteData = {}
-      const resposta = await axios.get(site)
-      if(resposta.status === 200){
-        const html = resposta.data;
-        const $ = cheerio.load(html);
+      const siteHTTP = site
 
-        const title = $('title').text();
-        const faviconLink = $('link[rel="icon"]').attr('href');
-        
+      const resposta = await axios.get(site)
+
+      if (site.startsWith("https://")) {
+        site = site.substr(8)
+      } else {
+        site = site.substr(7);
+      }
+
+      if (site.endsWith("/")) {
+        site = site.slice(0, -1)
+      }
+
+      if (resposta.status === 200) {
+        const html = resposta.data
+        const $ = cheerio.load(html)
+        $.html()
+
+        const title = $('title').text()
+        let faviconLink = $('link[rel="icon"]').attr('href')
+        faviconLink = siteHTTP + faviconLink
+
         let iniValidade, fimValidade
-        sslCertificate.get(site).then(function (ssl) {
-          iniValidade = ssl.valid_from
-          fimValidade = ssl.valid_to
+        await sslCertificate.get(site).then(function (certificate) {
+          iniValidade = certificate.valid_from
+          fimValidade = certificate.valid_to
         })
 
         siteData = {
@@ -386,10 +401,18 @@ rotas.get('/get-sites', async function(req, res) {
           "fimValidade": fimValidade
         }
         data.push(siteData)
+      }else{
+        siteData = {
+          "titulo": "OFF",
+          "favIcon": faviconLink,
+          "iniValidade": 0,
+          "fimValidade": 0
+        }
+        data.push(siteData)
       }
-    }
 
-    res.status(200).json(data)
+      res.status(200).json(data)
+    }
   }
 
 })
@@ -406,7 +429,7 @@ rotas.get('/', async function (req, res) {
 
 //OK
 rotas.get('*', function (req, res) {
-  res.status(404).json({erro: "Não foi encontrado"})
+  res.status(404).json({ erro: "Não foi encontrado" })
 })
 
 export default rotas
