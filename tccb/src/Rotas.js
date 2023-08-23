@@ -302,7 +302,7 @@ rotas.post('/add-pages', async function (req, res) {
   let { app_token } = req.body
 
   if (!app_token || !pageId || !pageName || !id) {
-    return resposta.status(400).json({ erro: "Dados de entrada inválidos" })
+    return res.status(400).json({ erro: "Dados de entrada inválidos" })
   } else {
     app_token = await verifyToken(app_token)
   }

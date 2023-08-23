@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styles from "../styles/SiteCheck.module.css";
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -10,6 +10,15 @@ export default function SiteCheck() {
     const [type, setType] = useState("semSites")
     const [sites, setSites] = useState([])
     const [site, SetSite] = useState("")
+
+    useEffect(() => {
+        getSites()
+        if(sites.length > 0){
+            setType("comSites")
+        }else{
+            setType("semSites")
+        }
+    }, [type, sites])
 
     async function getSites(){
         if (localStorage.getItem("ImpressTech")) {
@@ -28,7 +37,7 @@ export default function SiteCheck() {
                         const favIcon = site.favIcon || "/assets/sem-imagem.png"
 
                         let SSL = format(new Date(site.fimValidade), "dd/MM/yy - HH:mm:ss")
-                        const hj = new Date()
+                        const hj = format(new Date(), "dd/MM/yy - HH:mm:ss")
                         if(SSL > hj ){
                             SSL = "SSL OK"
                         }else if(SSL < hj){
@@ -39,15 +48,16 @@ export default function SiteCheck() {
 
                         let Status
                         if(titulo === "OFF"){
-                            Status = "ONLINE"
-                        }else{
                             Status = "OFF"
+                        }else{
+                            Status = "ONLINE"
                         }
 
                         return {
                             titulo: titulo,
                             favIcon: favIcon,
-                            SSL: 
+                            SSL: SSL,
+                            Status: Status
                         }
                     })
                     setSites(dataSites)
@@ -126,8 +136,8 @@ export default function SiteCheck() {
                     <div className={styles.divSite}>
                         <div className={styles.divSiteInfo}>
                             <h4><b>{site.titulo}</b></h4>
-                            <label>Online</label>
-                            <label>SSL</label>
+                            <label>{site.Status}</label>
+                            <label>{site.SSL}</label>
                         </div>
                         <img  className={styles.divSiteImg} src={site.favIcon || "/assets/sem-imagem.png"} alt="Icon Site" style={{width:70}}/>
                     </div>
