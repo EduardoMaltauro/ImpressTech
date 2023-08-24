@@ -360,14 +360,19 @@ rotas.get('/get-sites', async function (req, res) {
 
   const user = siteData.find(user => user.id === id)
   if (!user) {
-    return resposta.status(404).json({ erro: "Usuário não encontrado" })
+    return res.status(404).json({ erro: "Usuário não encontrado" })
   } else {
     const data = []
     for (let site of user.sites) {
       let siteData = {}
       const siteHTTP = site
 
-      const resposta = await axios.get(site)
+      try{
+        const resposta = await axios.get(site)
+      }catch(erro){
+        console.log(erro)
+        res.sendStatus(404)
+      }
 
       if (site.startsWith("https://")) {
         site = site.substr(8)
@@ -404,7 +409,7 @@ rotas.get('/get-sites', async function (req, res) {
       }else{
         siteData = {
           "titulo": "OFF",
-          "favIcon": faviconLink,
+          "favIcon": null,
           "iniValidade": 0,
           "fimValidade": 0
         }

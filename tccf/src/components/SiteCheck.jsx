@@ -13,19 +13,13 @@ export default function SiteCheck() {
 
     useEffect(() => {
         getSites()
-        if(sites.length > 0){
-            setType("comSites")
-        }else{
-            setType("semSites")
-        }
-    }, [type, sites])
+    }, [])
 
     async function getSites(){
         if (localStorage.getItem("ImpressTech")) {
             let data = JSON.parse(localStorage.getItem("ImpressTech"));
             let id = data.ID;
             try{
-                setType("load")
                 const resposta = await axios.get("http://localhost:4000/get-sites", {
                     params:{
                         id: id
@@ -61,9 +55,10 @@ export default function SiteCheck() {
                         }
                     })
                     setSites(dataSites)
+                    setType("comSites")
                 }
             }catch(erro){
-                setType("comSites")
+                setType("semSites")
                 console.log(erro)
             }
         }
@@ -80,7 +75,7 @@ export default function SiteCheck() {
                 const resposta = await axios.post("http://localhost:4000/add-sites", {id, site})
     
                 if(resposta.status === 202){
-                    getSites()
+                    await getSites()
                     setType("comSites")
                 }
             }catch(erro){
