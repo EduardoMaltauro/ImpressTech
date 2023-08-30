@@ -341,14 +341,12 @@ rotas.post('/add-sites', async function (req, res) {
   if (!user) {
     return res.status(404).json({ erro: "Usuário não encontrado" })
   } else {
-    if (user.sites.find(userSite => userSite === site)) {
-      return res.status(409).json({ aviso: "Dados já adicionados" })
-    } else {
+    if (user.sites.includes(site)) {
+      return res.status(409).json({ aviso: "Dados já adicionados" });
+    }
       user.sites.push(site)
       return res.status(202).json({ mensagem: "Dados adicionados com sucesso" })
-    }
   }
-
 })
 
 //...
@@ -357,69 +355,68 @@ rotas.get('/get-sites', async function (req, res) {
   if (!id) {
     return res.status(400).json({ erro: "Dados de entrada inválidos" })
   }
-
   const user = siteData.find(user => user.id === id)
   if (!user) {
     return res.status(404).json({ erro: "Usuário não encontrado" })
   } else {
     const data = []
     for (let site of user.sites) {
+      console.log(site)
       let siteData = {}
       const siteHTTP = site
-
-      try{
+      
+      try {
         const resposta = await axios.get(site)
-      }catch(erro){
+
+        if (resposta.status === 200) {
+          const html = resposta.data
+          const $ = cheerio.load(html)
+          $.html()
+
+          const title = $('title').text()
+          let faviconLink = $('link[rel="icon"]').attr('href')
+          faviconLink = siteHTTP + faviconLink
+
+          if (site.startsWith("https://")) {
+            site = site.substr(8)
+          } else {
+            site = site.substr(7);
+          }
+
+          if (site.endsWith("/")) {
+            site = site.slice(0, -1)
+          }
+
+          let iniValidade, fimValidade
+          await sslCertificate.get(site).then(function (certificate) {
+            iniValidade = certificate.valid_from
+            fimValidade = certificate.valid_to
+          })
+
+          siteData = {
+            "titulo": title,
+            "favIcon": faviconLink,
+            "iniValidade": iniValidade,
+            "fimValidade": fimValidade
+          }
+          data.push(siteData)
+        } else {
+          siteData = {
+            "titulo": "OFF",
+            "favIcon": null,
+            "iniValidade": 0,
+            "fimValidade": 0
+          }
+          data.push(siteData)
+        }
+      } catch (erro) {
         console.log(erro)
         res.sendStatus(404)
       }
 
-      if (site.startsWith("https://")) {
-        site = site.substr(8)
-      } else {
-        site = site.substr(7);
-      }
-
-      if (site.endsWith("/")) {
-        site = site.slice(0, -1)
-      }
-
-      if (resposta.status === 200) {
-        const html = resposta.data
-        const $ = cheerio.load(html)
-        $.html()
-
-        const title = $('title').text()
-        let faviconLink = $('link[rel="icon"]').attr('href')
-        faviconLink = siteHTTP + faviconLink
-
-        let iniValidade, fimValidade
-        await sslCertificate.get(site).then(function (certificate) {
-          iniValidade = certificate.valid_from
-          fimValidade = certificate.valid_to
-        })
-
-        siteData = {
-          "titulo": title,
-          "favIcon": faviconLink,
-          "iniValidade": iniValidade,
-          "fimValidade": fimValidade
-        }
-        data.push(siteData)
-      }else{
-        siteData = {
-          "titulo": "OFF",
-          "favIcon": null,
-          "iniValidade": 0,
-          "fimValidade": 0
-        }
-        data.push(siteData)
-      }
-
-      res.status(200).json(data)
     }
+    res.status(200).json(data)
   }
-
 })
 
 //OK
