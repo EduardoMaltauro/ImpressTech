@@ -82,9 +82,15 @@
     padding: 5px;
 }
 
+.divSiteInfo h4{
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
 .divSite img{
     position: absolute;
-    margin-top: -73px;
+    margin-top: -66px;
     margin-left: 3px;
     border-radius: 5px;
 }

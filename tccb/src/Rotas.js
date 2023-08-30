@@ -16,6 +16,7 @@ import { newId } from "./functions/SystemLogin.js";
 import "./functions/SystemTimeAccess.js";
 
 import { v2 as cloudinary } from 'cloudinary';
+import SiteCheck from "../../tccf/src/components/SiteCheck.jsx";
 
 cloudinary.config({
   cloud_name: 'dlgvouxpu',
@@ -330,6 +331,25 @@ rotas.post('/add-pages', async function (req, res) {
   }
 });
 
+rotas.delete('del-sites', async function (req, res) {
+  const id = req.params.id
+  const site = req.params.site
+  if(!id || !site){
+    return res.status(400).json({ erro: "Dados de entrada inválidos" })
+  }
+
+  const user = siteData.find(user => user.id === id)
+  if(!user){
+    return res.status(404).json({ erro: "Usuário não encontrado" })
+  }else{
+    for(const siteUser of user.sites){
+      if(siteUser === site){
+        user.sites.delete()
+      }
+    }
+  }
+})
+
 //...
 rotas.post('/add-sites', async function (req, res) {
   const id = req.body.id
@@ -341,8 +361,10 @@ rotas.post('/add-sites', async function (req, res) {
   if (!user) {
     return res.status(404).json({ erro: "Usuário não encontrado" })
   } else {
-    if (user.sites.includes(site)) {
-      return res.status(409).json({ aviso: "Dados já adicionados" });
+    for(const siteUser of user.sites){
+      if(siteUser === site){
+        return res.status(409).json({ aviso: "Dados já adicionados" });
+      }
     }
       user.sites.push(site)
       return res.status(202).json({ mensagem: "Dados adicionados com sucesso" })
@@ -361,7 +383,6 @@ rotas.get('/get-sites', async function (req, res) {
   } else {
     const data = []
     for (let site of user.sites) {
-      console.log(site)
       let siteData = {}
       const siteHTTP = site
       
@@ -371,13 +392,19 @@ rotas.get('/get-sites', async function (req, res) {
         if (resposta.status === 200) {
           const html = resposta.data
           const $ = cheerio.load(html)
-          $.html()
+          await $.html()
 
           const title = $('title').text()
           let faviconLink = $('link[rel="icon"]').attr('href')
-          faviconLink = siteHTTP + faviconLink
 
-          if (site.startsWith("https://")) {
+          if(!faviconLink.startsWith("https://")){
+            faviconLink = siteHTTP + faviconLink
+          }
+
+          if(site.startsWith("http://")){
+            site = site.substr(7)
+          }
+          else if (site.startsWith("https://")) {
             site = site.substr(8)
           } else {
             site = site.substr(7);
@@ -397,7 +424,8 @@ rotas.get('/get-sites', async function (req, res) {
             "titulo": title,
             "favIcon": faviconLink,
             "iniValidade": iniValidade,
-            "fimValidade": fimValidade
+            "fimValidade": fimValidade,
+            "linkSite": siteHTTP
           }
           data.push(siteData)
         } else {
@@ -405,7 +433,8 @@ rotas.get('/get-sites', async function (req, res) {
             "titulo": "OFF",
             "favIcon": null,
             "iniValidade": 0,
-            "fimValidade": 0
+            "fimValidade": 0,
+            "linkSite": siteHTTP
           }
           data.push(siteData)
         }

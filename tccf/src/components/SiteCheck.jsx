@@ -1,19 +1,24 @@
 import React, { useEffect, useState } from "react";
 import styles from "../styles/SiteCheck.module.css";
-
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faGlobe, faPlus, faRotateRight } from '@fortawesome/free-solid-svg-icons'
 import axios from "axios";
 import { format } from 'date-fns';
 
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faGlobe, faPlus, faRotateRight, faTrash } from '@fortawesome/free-solid-svg-icons'
+
 export default function SiteCheck() {
-    const [type, setType] = useState("semSites")
+    const [type, setType] = useState("load")
     const [sites, setSites] = useState([])
-    const [site, SetSite] = useState("")
+    const [site, setSite] = useState("")
 
     useEffect(() => {
         getSites()
-    }, [])
+        if(sites.length > 0){
+            setType("comSites")
+        }else{
+            setType("semSites")
+        }
+    }, [sites])
 
     async function getSites(){
         if (localStorage.getItem("ImpressTech")) {
@@ -29,15 +34,16 @@ export default function SiteCheck() {
                     const dataSites = resposta.data.map((site) => {
                         const titulo = site.titulo
                         const favIcon = site.favIcon || "/assets/sem-imagem.png"
+                        const linkSite = site.linkSite
 
                         let SSL = format(new Date(site.fimValidade), "dd/MM/yy - HH:mm:ss")
                         const hj = format(new Date(), "dd/MM/yy - HH:mm:ss")
-                        if(SSL > hj ){
+                        if(SSL < hj ){
                             SSL = "SSL OK"
-                        }else if(SSL < hj){
-                            SSL = "Vencido"
+                        }else if(SSL > hj){
+                            SSL = "SSL vencido"
                         }else{
-                            SSL = "Vence Hoje"
+                            SSL = "SSL vence Hoje"
                         }
 
                         let Status
@@ -51,11 +57,11 @@ export default function SiteCheck() {
                             titulo: titulo,
                             favIcon: favIcon,
                             SSL: SSL,
-                            Status: Status
+                            status: Status,
+                            link: linkSite
                         }
                     })
                     setSites(dataSites)
-                    setType("comSites")
                 }
             }catch(erro){
                 setType("semSites")
@@ -104,7 +110,7 @@ export default function SiteCheck() {
                 </div>
                 <div className={styles.divNewSite} id="divAddSite" style={{ display: "none" }}>
                     <form onSubmit={(event) => {event.preventDefault(); divSite(); addSites();}}>
-                         <input  onChange={(event) => {SetSite(event.target.value)}}  id={styles.inputSite} type="url" placeholder="https://impresstech.com.br" required/>
+                         <input  onChange={(event) => {setSite(event.target.value)}}  id={styles.inputSite} type="url" placeholder="https://impresstech.com.br" required/>
                         <br />
                         <input type="submit"/>
                     </form>
@@ -120,7 +126,7 @@ export default function SiteCheck() {
                 <button className={styles.bntRelSites} onClick={() => {getSites()}}><FontAwesomeIcon icon={faRotateRight} spin></FontAwesomeIcon></button>
                 <div className={styles.divNewSite} id="divAddSite" style={{ display: "none" }}>
                     <form onSubmit={(event) => { event.preventDefault(); addSites()}}>
-                        <input id={styles.inputSite} type="url" placeholder="https://impresstech.com.br" required />
+                        <input  onChange={(event) => {setSite(event.target.value)}}  id={styles.inputSite} type="url" placeholder="https://impresstech.com.br" required/>
                         <br />
                         <input type="submit" />
                     </form>
@@ -129,12 +135,13 @@ export default function SiteCheck() {
                 {sites.map((site) => (
                     <div className={styles.divSites}>
                     <div className={styles.divSite}>
+                    <button className="btn btn-danger" style={{position: "absolute", marginLeft: "18%", padding: 5, marginTop: "5px"}}><FontAwesomeIcon icon={faTrash} bounce /></button>
                         <div className={styles.divSiteInfo}>
-                            <h4><b>{site.titulo}</b></h4>
+                            <h5><b>{site.titulo}</b></h5>
                             <label>{site.Status}</label>
                             <label>{site.SSL}</label>
                         </div>
-                        <img  className={styles.divSiteImg} src={site.favIcon || "/assets/sem-imagem.png"} alt="Icon Site" style={{width:70}}/>
+                        <a href={site.link} target="_blank"><img  className={styles.divSiteImg} src={site.favIcon} href={site.link} alt="Icon Site" style={{width:70}}/></a>
                     </div>
                 </div>
                 ))}
