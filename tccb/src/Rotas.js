@@ -16,7 +16,6 @@ import { newId } from "./functions/SystemLogin.js";
 import "./functions/SystemTimeAccess.js";
 
 import { v2 as cloudinary } from 'cloudinary';
-import SiteCheck from "../../tccf/src/components/SiteCheck.jsx";
 
 cloudinary.config({
   cloud_name: 'dlgvouxpu',
@@ -331,22 +330,21 @@ rotas.post('/add-pages', async function (req, res) {
   }
 });
 
-rotas.delete('del-sites', async function (req, res) {
+rotas.delete('/del-sites', async function (req, res) {
   const id = req.params.id
   const site = req.params.site
+  console.log(id, site)
   if(!id || !site){
     return res.status(400).json({ erro: "Dados de entrada inválidos" })
   }
-
+  
   const user = siteData.find(user => user.id === id)
   if(!user){
     return res.status(404).json({ erro: "Usuário não encontrado" })
   }else{
-    for(const siteUser of user.sites){
-      if(siteUser === site){
-        user.sites.delete()
-      }
-    }
+    const data = user.sites.filter(sitesData => siteData !== site)
+    user.sites = data
+    console.log(users.site)  
   }
 })
 
@@ -366,8 +364,19 @@ rotas.post('/add-sites', async function (req, res) {
         return res.status(409).json({ aviso: "Dados já adicionados" });
       }
     }
-      user.sites.push(site)
-      return res.status(202).json({ mensagem: "Dados adicionados com sucesso" })
+
+    try{
+        const validSite = await axios.get(site)
+        if(validSite.status === 200){
+          user.sites.push(site)
+          return res.status(202).json({ mensagem: "Dados adicionados com sucesso" })
+        }else{
+          return res.status(404).json({mensagem: "Não foi possivel encontrar o site!"})
+        }
+    }catch(erro){
+      console.log(erro)
+      return res.status(404).json({erro: "Erro ao verificar o site"})
+    }
   }
 })
 
@@ -392,12 +401,12 @@ rotas.get('/get-sites', async function (req, res) {
         if (resposta.status === 200) {
           const html = resposta.data
           const $ = cheerio.load(html)
-          await $.html()
+          $.html()
 
           const title = $('title').text()
           let faviconLink = $('link[rel="icon"]').attr('href')
 
-          if(!faviconLink.startsWith("https://")){
+          if(faviconLink && !faviconLink.startsWith("https://")){
             faviconLink = siteHTTP + faviconLink
           }
 
