@@ -20,6 +20,25 @@ export default function SiteCheck() {
         }
     }, [sites])
 
+    async function delSites(site){
+        if(localStorage.getItem("ImpressTech")){
+            setType("load")
+            let data = JSON.parse(localStorage.getItem("ImpressTech"))
+            let id = data.id
+
+            try{
+                const resposta = await axios.delete("http://localhost:4000/del-sites", {id,site})
+
+                if(resposta.status === 200){
+                    await getSites()
+                    setType("comSites")
+                }
+            }catch(erro){
+                setType("comSites")
+                console.log(erro)
+            }
+        }
+    }
     async function getSites(){
         if (localStorage.getItem("ImpressTech")) {
             let data = JSON.parse(localStorage.getItem("ImpressTech"));
@@ -79,7 +98,7 @@ export default function SiteCheck() {
             try{
                 setType("load")
                 const resposta = await axios.post("http://localhost:4000/add-sites", {id, site})
-    
+                
                 if(resposta.status === 202){
                     await getSites()
                     setType("comSites")
@@ -135,7 +154,7 @@ export default function SiteCheck() {
                 {sites.map((site) => (
                     <div className={styles.divSites}>
                     <div className={styles.divSite}>
-                    <button className="btn btn-danger" style={{position: "absolute", marginLeft: "18%", padding: 5, marginTop: "5px"}}><FontAwesomeIcon icon={faTrash} bounce /></button>
+                    <button className="btn btn-danger" onClick={() => { delSites(site.link)}} style={{position: "absolute", marginLeft: "18%", padding: 5, marginTop: "5px"}}><FontAwesomeIcon icon={faTrash} bounce /></button>
                         <div className={styles.divSiteInfo}>
                             <h5><b>{site.titulo}</b></h5>
                             <label>{site.Status}</label>

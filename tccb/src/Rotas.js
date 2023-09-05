@@ -330,10 +330,10 @@ rotas.post('/add-pages', async function (req, res) {
   }
 });
 
+//...
 rotas.delete('/del-sites', async function (req, res) {
-  const id = req.params.id
-  const site = req.params.site
-  console.log(id, site)
+  const id = req.body.id
+  const site = req.body.site
   if(!id || !site){
     return res.status(400).json({ erro: "Dados de entrada inválidos" })
   }
@@ -342,9 +342,13 @@ rotas.delete('/del-sites', async function (req, res) {
   if(!user){
     return res.status(404).json({ erro: "Usuário não encontrado" })
   }else{
-    const data = user.sites.filter(sitesData => siteData !== site)
-    user.sites = data
-    console.log(users.site)  
+    const data = user.sites.filter(sitesData => sitesData !== site)
+    if(!data || data == null || data == undefined){
+      return res.status(404).json({erro: "Não foi possivel encontrar o site!"})
+    }else{
+      user.sites = data
+      return res.status(200).json({messagem: "Removido com sucesso!"})
+    }
   }
 })
 
