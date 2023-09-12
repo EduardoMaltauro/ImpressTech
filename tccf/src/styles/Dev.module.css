@@ -4,4 +4,11 @@
     background-color: #212529;
     border-radius: 10px;
     text-align: center;
+    font-size: 100%;
+}
+
+@media screen and (max-width: 768px)  {
+    .index h1{
+        font-size: 100%;
+    }
 }

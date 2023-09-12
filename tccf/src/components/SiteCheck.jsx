@@ -160,7 +160,7 @@ export default function SiteCheck() {
                             <label>{site.Status}</label>
                             <label>{site.SSL}</label>
                         </div>
-                        <a href={site.link} target="_blank"><img  className={styles.divSiteImg} src={site.favIcon} href={site.link} alt="Icon Site" style={{width:70}}/></a>
+                        <a href={site.link} ><img  className={styles.divSiteImg} src={site.favIcon} href={site.link} alt="Icon Site" style={{width:70}}/></a>
                     </div>
                 </div>
                 ))}

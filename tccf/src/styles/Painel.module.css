@@ -49,9 +49,24 @@
   position:sticky;
 }
 
-@media screen and (max-width: 768px) {
-  .index {
-    display: none;
+.buttonPainel{
+  z-index: 1;
+  position: absolute;
+  margin-top: 15%;
+  border: none;
+  border-radius: 5px;
+  font-size: 20px;
+  display: none;
 }
+
+
+@media screen and (max-width: 768px) {
+  .index{
+    display: none;
+  }
+
+  .buttonPainel{
+    display: flex;
+  }
 
 }

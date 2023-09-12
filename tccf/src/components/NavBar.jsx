@@ -4,7 +4,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faHouse,faUser,faRightFromBracket } from '@fortawesome/free-solid-svg-icons'
 
 export default function NavBar(props){
-
     if(localStorage.getItem("ImpressTech")){
       return<>
         <nav className="navbar navbar-dark bg-dark fixed-top" style={{fontSize: 20}}>
