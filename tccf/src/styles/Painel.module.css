@@ -52,7 +52,8 @@
 .buttonPainel{
   z-index: 1;
   position: absolute;
-  margin-top: 15%;
+  margin-top: 16%;
+  margin-left: 1%;
   border: none;
   border-radius: 5px;
   font-size: 20px;
