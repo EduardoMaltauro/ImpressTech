@@ -10,9 +10,9 @@
 }
 
 .semSites{
-    margin-top: 25%;
-    margin-left: 10%;
-    margin-right: 10%;
+    margin-top: 10%;
+    margin-left: 20%;
+    margin-right: 40%;
     padding: 20px;
     text-align: center;
     border: 1px solid #fff;
@@ -29,16 +29,21 @@
 }
 
 .divNewSite{
+    text-align: center;
     background-color: #2d3135;
     border: #fff solid 1px;
     border-radius: 5px;
-    margin-top: 1%;
-    margin-left: 10%;
-    
-    padding: 5px;
+    width: 40%;
+    height: auto;
+    margin-left: 20%;
+    margin-top: 10px;
     position:  absolute;
     font-size: 15px;
     z-index: 1;
+}
+
+.divNewSite form{
+    width: 100%;
 }
 
 .divNewSite input{
@@ -48,7 +53,7 @@
 }
 
 #inputSite{
-    width: 71vw;
+    width: 25vw;
 }
 
 .btnAdd{
@@ -65,14 +70,11 @@
 .divSite{
     margin-top: 5%;
     margin-left: 5%;
-}
-.divSite{
     width: 20%;
     height: 30%;
     border: #fff solid 1px;
     border-radius: 5px;
 }
-
 .divSiteInfo{
     margin-left: 50px;
     text-align: center;
@@ -108,6 +110,111 @@
 
 @media screen and (max-width: 768px)  {
     .index{
-        margin: 0px;
+        position: fixed;
+        margin-top: 56px;
+        margin-left: 0px;
+        width: 100vw;
+        height: 100vh;
+        background-color: #212529;
+        border: 1px solid #fff;
+        color: #fff;
+    }
+    
+    .semSites{
+        margin-top: 25%;
+        margin-left: 10%;
+        margin-right: 10%;
+        padding: 20px;
+        text-align: center;
+        border: 1px solid #fff;
+    }
+    
+    .semSites button{
+        border-style: none;
+        border-radius: 5px;
+        font-size: 25px;
+        width: 100%;
+        height: auto;
+        background-color: #334e84;
+        color:  #fff;
+    }
+    
+    .divNewSite{
+        background-color: #2d3135;
+        border: #fff solid 1px;
+        border-radius: 5px;
+        margin-top: 1%;
+        margin-left: 10%;
+        width: 80%;
+        
+        padding: 5px;
+        position:  absolute;
+        font-size: 15px;
+        z-index: 1;
+    }
+    
+    .divNewSite input{
+        margin: 10px;
+        border-radius: 5px;
+        border-style: none;
+    }
+    
+    #inputSite{
+        width: 71vw;
+    }
+    
+    .btnAdd{
+        border-style: none;
+        border-radius: 10px;
+        font-size: 20px;
+        background-color: #fff;
+        text-align: center;
+        position: fixed;
+        margin-left: 50px;
+        margin-top: 16px;
+    }
+    
+    .divSite{
+        margin-top: 5%;
+        margin-left: 5%;
+    }
+    .divSite{
+        width: 20%;
+        height: 30%;
+        border: #fff solid 1px;
+        border-radius: 5px;
+    }
+    
+    .divSiteInfo{
+        margin-left: 50px;
+        text-align: center;
+        padding-bottom: 5px;
+    }
+    .divSiteInfo label{
+        padding: 5px;
+    }
+    
+    .divSiteInfo h4{
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+    
+    .divSite img{
+        position: absolute;
+        margin-top: -66px;
+        margin-left: 3px;
+        border-radius: 5px;
+    }
+    
+    .bntRelSites    {
+        border-style: none;
+        border-radius: 10px;
+        font-size: 20px;
+        background-color: #fff;
+        text-align: center;
+        position: fixed;
+        margin-left: 10px;
+        margin-top: 16px;
     }
 }
