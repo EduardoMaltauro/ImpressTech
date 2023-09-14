@@ -331,9 +331,9 @@ rotas.post('/add-pages', async function (req, res) {
 });
 
 //...
-rotas.delete('/del-sites', async function (req, res) {
-  const id = req.body.id
-  const site = req.body.site
+rotas.post('/del-sites', async function (req, res) {
+  const {id, site} = req.body
+  console.log(id,site)
   if(!id || !site){
     return res.status(400).json({ erro: "Dados de entrada inválidos" })
   }

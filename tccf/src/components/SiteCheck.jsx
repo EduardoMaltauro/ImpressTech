@@ -12,22 +12,23 @@ export default function SiteCheck() {
     const [site, setSite] = useState("")
 
     useEffect(() => {
+        console.log(site)
         getSites()
         if(sites.length > 0){
             setType("comSites")
         }else{
             setType("semSites")
         }
-    }, [sites])
+    }, [])
 
     async function delSites(site){
         if(localStorage.getItem("ImpressTech")){
             setType("load")
-            let data = JSON.parse(localStorage.getItem("ImpressTech"))
-            let id = data.id
+            const data = JSON.parse(localStorage.getItem("ImpressTech"))
+            const id = data.id
 
             try{
-                const resposta = await axios.delete("http://localhost:4000/del-sites", {id,site})
+                const resposta = await axios.post("http://localhost:4000/del-sites", {id,site})
 
                 if(resposta.status === 200){
                     await getSites()
@@ -55,12 +56,13 @@ export default function SiteCheck() {
                         const favIcon = site.favIcon || "/assets/sem-imagem.png"
                         const linkSite = site.linkSite
 
-                        let SSL = format(new Date(site.fimValidade), "dd/MM/yy - HH:mm:ss")
-                        const hj = format(new Date(), "dd/MM/yy - HH:mm:ss")
+                        let SSL = format(new Date(site.fimValidade), "dd/MM/yy")
+                        const hj = format(new Date(), "dd/MM/yy")
+                        
                         if(SSL < hj ){
-                            SSL = "SSL OK"
-                        }else if(SSL > hj){
                             SSL = "SSL vencido"
+                        }else if(SSL > hj){
+                            SSL = "SSL OK"
                         }else{
                             SSL = "SSL vence Hoje"
                         }
@@ -80,7 +82,7 @@ export default function SiteCheck() {
                             link: linkSite
                         }
                     })
-                    setSites(dataSites)
+                    setSites(dataSites)            
                 }
             }catch(erro){
                 setType("semSites")
