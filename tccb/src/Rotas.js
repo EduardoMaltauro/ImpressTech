@@ -16,6 +16,7 @@ import { newId } from "./functions/SystemLogin.js";
 import "./functions/SystemTimeAccess.js";
 
 import { v2 as cloudinary } from 'cloudinary';
+import { format } from 'date-fns';
 
 cloudinary.config({
   cloud_name: 'dlgvouxpu',
@@ -332,30 +333,29 @@ rotas.post('/add-pages', async function (req, res) {
 
 //...
 rotas.post('/del-sites', async function (req, res) {
-  const {id, site} = req.body
-  console.log(id,site)
-  if(!id || !site){
+  const { id, site } = req.body
+  console.log(id, site)
+  if (!id || !site) {
     return res.status(400).json({ erro: "Dados de entrada inválidos" })
   }
-  
+
   const user = siteData.find(user => user.id === id)
-  if(!user){
+  if (!user) {
     return res.status(404).json({ erro: "Usuário não encontrado" })
-  }else{
+  } else {
     const data = user.sites.filter(sitesData => sitesData !== site)
-    if(!data || data == null || data == undefined){
-      return res.status(404).json({erro: "Não foi possivel encontrar o site!"})
-    }else{
+    if (!data || data == null || data == undefined) {
+      return res.status(404).json({ erro: "Não foi possivel encontrar o site!" })
+    } else {
       user.sites = data
-      return res.status(200).json({messagem: "Removido com sucesso!"})
+      return res.status(200).json({ messagem: "Removido com sucesso!" })
     }
   }
 })
 
 //...
 rotas.post('/add-sites', async function (req, res) {
-  const id = req.body.id
-  const site = req.body.site
+  const {id, site} = req.body
   if (!id || !site) {
     return res.status(400).json({ erro: "Dados de entrada inválidos" })
   }
@@ -363,23 +363,24 @@ rotas.post('/add-sites', async function (req, res) {
   if (!user) {
     return res.status(404).json({ erro: "Usuário não encontrado" })
   } else {
-    for(const siteUser of user.sites){
-      if(siteUser === site){
+    for (const siteUser of user.sites) {
+      if (siteUser === site) {
         return res.status(409).json({ aviso: "Dados já adicionados" });
       }
     }
 
-    try{
-        const validSite = await axios.get(site)
-        if(validSite.status === 200){
-          user.sites.push(site)
-          return res.status(202).json({ mensagem: "Dados adicionados com sucesso" })
-        }else{
-          return res.status(404).json({mensagem: "Não foi possivel encontrar o site!"})
-        }
-    }catch(erro){
-      console.log(erro)
-      return res.status(404).json({erro: "Erro ao verificar o site"})
+    try {
+      const validSite = await axios.get(site);
+    
+      if (validSite.status === 200) {
+        user.sites.push(site);
+        return res.status(202).json({ mensagem: "Dados adicionados com sucesso" });
+      }
+    
+      return res.status(404).json({ mensagem: "Não foi possível encontrar o site!" });
+    } catch (erro) {
+      console.error(erro);
+      return res.status(404).json({ erro: "Erro ao verificar o site" });
     }
   }
 })
@@ -397,10 +398,11 @@ rotas.get('/get-sites', async function (req, res) {
     const data = []
     for (let site of user.sites) {
       let siteData = {}
-      const siteHTTP = site
-      
+      let siteHTTP = site
+
       try {
-        const resposta = await axios.get(site)
+    
+        const resposta = await axios.get(siteHTTP)
 
         if (resposta.status === 200) {
           const html = resposta.data
@@ -410,49 +412,61 @@ rotas.get('/get-sites', async function (req, res) {
           const title = $('title').text()
           let faviconLink = $('link[rel="icon"]').attr('href')
 
-          if(faviconLink && !faviconLink.startsWith("https://")){
+          if (faviconLink && !faviconLink.startsWith("https://")) {
             faviconLink = siteHTTP + faviconLink
           }
 
-          if(site.startsWith("http://")){
-            site = site.substr(7)
+          let siteSemHTTP
+          if (site.startsWith("http://")) {
+            siteSemHTTP = site.substr(7)
           }
           else if (site.startsWith("https://")) {
-            site = site.substr(8)
+            siteSemHTTP = site.substr(8)
           } else {
-            site = site.substr(7);
+            siteSemHTTP = site.substr(7);
           }
 
           if (site.endsWith("/")) {
-            site = site.slice(0, -1)
+            siteSemHTTP = site.slice(0, -1)
           }
 
           let iniValidade, fimValidade
-          await sslCertificate.get(site).then(function (certificate) {
+          await sslCertificate.get(siteSemHTTP).then(function (certificate) {
             iniValidade = certificate.valid_from
             fimValidade = certificate.valid_to
           })
 
+          let SSL
+          SSL = format(new Date(site.fimValidade), "dd/MM/yy")
+          const hj = new Date()
+
+          if (fimValidade < hj) {
+            SSL = "SSL VENCIDO"
+          } else if (fimValidade > hj) {
+            SSL = "SSL OK"
+          } else {
+            SSL = "SSL VENCE HOJE"
+          }
           siteData = {
             "titulo": title,
             "favIcon": faviconLink,
-            "iniValidade": iniValidade,
-            "fimValidade": fimValidade,
+            "SSL": SSL,
+            "status": "ON",
             "linkSite": siteHTTP
           }
           data.push(siteData)
         } else {
           siteData = {
             "titulo": "OFF",
-            "favIcon": null,
-            "iniValidade": 0,
-            "fimValidade": 0,
+            "favIcon": undefined,
+            "SSL": "",
+            "status": "OFF",
             "linkSite": siteHTTP
           }
           data.push(siteData)
         }
       } catch (erro) {
-        console.log(erro)
+        //console.log(erro)
         res.sendStatus(404)
       }
 

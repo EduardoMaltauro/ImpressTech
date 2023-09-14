@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import styles from "../styles/SiteCheck.module.css";
 import axios from "axios";
-import { format } from 'date-fns';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faGlobe, faPlus, faRotateRight, faTrash } from '@fortawesome/free-solid-svg-icons'
@@ -12,13 +11,14 @@ export default function SiteCheck() {
     const [site, setSite] = useState("")
 
     useEffect(() => {
-        console.log(site)
-        getSites()
-        if(sites.length > 0){
-            setType("comSites")
-        }else{
-            setType("semSites")
-        }
+        setTimeout(() => {
+            getSites()
+            if(sites.length > 0){
+                setType("comSites")
+            }else{
+                setType("semSites")
+            }
+        }, 5000);
     }, [])
 
     async function delSites(site){
@@ -54,31 +54,15 @@ export default function SiteCheck() {
                     const dataSites = resposta.data.map((site) => {
                         const titulo = site.titulo
                         const favIcon = site.favIcon || "/assets/sem-imagem.png"
-                        const linkSite = site.linkSite
-
-                        let SSL = format(new Date(site.fimValidade), "dd/MM/yy")
-                        const hj = format(new Date(), "dd/MM/yy")
-                        
-                        if(SSL < hj ){
-                            SSL = "SSL vencido"
-                        }else if(SSL > hj){
-                            SSL = "SSL OK"
-                        }else{
-                            SSL = "SSL vence Hoje"
-                        }
-
-                        let Status
-                        if(titulo === "OFF"){
-                            Status = "OFF"
-                        }else{
-                            Status = "ONLINE"
-                        }
-
+                        const status = site.status
+                        let SSL = site.SSL
+                        const linkSite = site.linkSite                      
+                       
                         return {
                             titulo: titulo,
                             favIcon: favIcon,
                             SSL: SSL,
-                            status: Status,
+                            status: status,
                             link: linkSite
                         }
                     })
@@ -131,7 +115,7 @@ export default function SiteCheck() {
                 </div>
                 <div className={styles.divNewSite} id="divAddSite" style={{ display: "none" }}>
                     <form onSubmit={(event) => {event.preventDefault(); divSite(); addSites();}}>
-                         <input  onChange={(event) => {setSite(event.target.value)}}  id={styles.inputSite} type="url" placeholder="https://impresstech.com.br" required/>
+                         <input  onChange={(event) => {setSite(event.target.value)}}  id={styles.inputSite} type="url" placeholder="https://impresscione.com.br/" required/>
                         <br />
                         <input type="submit"/>
                     </form>
@@ -147,7 +131,7 @@ export default function SiteCheck() {
                 <button className={styles.bntRelSites} onClick={() => {getSites()}}><FontAwesomeIcon icon={faRotateRight} spin></FontAwesomeIcon></button>
                 <div className={styles.divNewSite} id="divAddSite" style={{ display: "none" }}>
                     <form onSubmit={(event) => { event.preventDefault(); addSites()}}>
-                        <input  onChange={(event) => {setSite(event.target.value)}}  id={styles.inputSite} type="url" placeholder="https://impresstech.com.br" required/>
+                        <input  onChange={(event) => {setSite(event.target.value)}}  id={styles.inputSite} type="url" placeholder="https://impresscione.com.br/" required/>
                         <br />
                         <input type="submit" />
                     </form>
