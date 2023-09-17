@@ -394,7 +394,12 @@ rotas.get('/get-sites', async function (req, res) {
     return res.status(404).json({ erro: "Usuário não encontrado" })
   } else {
     for(const site of user.sites){
-      await getInfoSite(site, id)
+      console.log(site)
+      if(typeof site === "string"){
+        await getInfoSite(site, id)
+      }else{
+        await getInfoSite(site.linkSite, id)
+      }
     }
     res.status(200).json(siteData)
   }
