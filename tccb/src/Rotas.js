@@ -4,19 +4,17 @@ import "dotenv/config.js";
 import multer from "multer";
 import multerConfig from "./config/multer.js";
 import fs from "fs";
-import * as cheerio from "cheerio";
-import sslCertificate from "get-ssl-certificate";
 
 import users from "./data/users.js";
 import facebookData from "./data/FacebookPost.js";
 import siteData from "./data/SiteCheck.js";
+import {getInfoSite} from "./functions/SiteCheck.js";
 
 import { verifyToken } from "./functions/SDKFacebook.js";
 import { newId } from "./functions/SystemLogin.js";
 import "./functions/SystemTimeAccess.js";
 
 import { v2 as cloudinary } from 'cloudinary';
-import { format } from 'date-fns';
 
 cloudinary.config({
   cloud_name: 'dlgvouxpu',
@@ -395,83 +393,10 @@ rotas.get('/get-sites', async function (req, res) {
   if (!user) {
     return res.status(404).json({ erro: "Usuário não encontrado" })
   } else {
-    const data = []
-    for (let site of user.sites) {
-      let siteData = {}
-      let siteHTTP = site
-
-      try {
-    
-        const resposta = await axios.get(siteHTTP)
-
-        if (resposta.status === 200) {
-          const html = resposta.data
-          const $ = cheerio.load(html)
-          $.html()
-
-          const title = $('title').text()
-          let faviconLink = $('link[rel="icon"]').attr('href')
-
-          if (faviconLink && !faviconLink.startsWith("https://")) {
-            faviconLink = siteHTTP + faviconLink
-          }
-
-          let siteSemHTTP
-          if (site.startsWith("http://")) {
-            siteSemHTTP = site.substr(7)
-          }
-          else if (site.startsWith("https://")) {
-            siteSemHTTP = site.substr(8)
-          } else {
-            siteSemHTTP = site.substr(7);
-          }
-
-          if (site.endsWith("/")) {
-            siteSemHTTP = site.slice(0, -1)
-          }
-
-          let iniValidade, fimValidade
-          await sslCertificate.get(siteSemHTTP).then(function (certificate) {
-            iniValidade = certificate.valid_from
-            fimValidade = certificate.valid_to
-          })
-
-          let SSL
-          SSL = format(new Date(site.fimValidade), "dd/MM/yy")
-          const hj = new Date()
-
-          if (fimValidade < hj) {
-            SSL = "SSL VENCIDO"
-          } else if (fimValidade > hj) {
-            SSL = "SSL OK"
-          } else {
-            SSL = "SSL VENCE HOJE"
-          }
-          siteData = {
-            "titulo": title,
-            "favIcon": faviconLink,
-            "SSL": SSL,
-            "status": "ON",
-            "linkSite": siteHTTP
-          }
-          data.push(siteData)
-        } else {
-          siteData = {
-            "titulo": "OFF",
-            "favIcon": undefined,
-            "SSL": "",
-            "status": "OFF",
-            "linkSite": siteHTTP
-          }
-          data.push(siteData)
-        }
-      } catch (erro) {
-        //console.log(erro)
-        res.sendStatus(404)
-      }
-
+    for(const site of user.sites){
+      await getInfoSite(site, id)
     }
-    res.status(200).json(data)
+    res.status(200).json(siteData)
   }
 })
 
