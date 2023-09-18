@@ -1,6 +1,6 @@
 import axios from "axios";
 import * as cheerio from "cheerio";
-import { format } from "date-fns";
+import { compareAsc, format } from "date-fns";
 import sslCertificate from "get-ssl-certificate"
 import dados from "../data/SiteCheck.js"
 
@@ -47,22 +47,23 @@ export async function getInfoSite(site, id) {
                 fimValidade = certificate.valid_to
             })
     
-            let SSL = format(new Date(fimValidade), "dd/MM/yy")
-            const hj = format(new Date(), "dd/MM/yy")
-    
-            if (SSL < hj) {
-                SSL = "SSL VENCIDO"
-            } else if (SSL > hj) {
+            let SSL = new Date(fimValidade)
+            const hj = new Date()
+
+
+            if(compareAsc(SSL, hj) > 0){
                 SSL = "SSL OK"
-            } else {
+            }else if(compareAsc(SSL, hj) < 0){
+                SSL = "SSL VENCIDO"
+            }else{
                 SSL = "SSL VENCE HOJE"
             }
-  
+
             const data = {
                 "titulo": title,
                 "favIcon": faviconLink,
                 "ssl": SSL,
-                "status": "ON",
+                "status": "ONLINE",
                 "linkSite": site,
                 "dominio": siteSemHttp
             }
@@ -74,7 +75,7 @@ export async function getInfoSite(site, id) {
                 "titulo": "???",
                 "favIcon": undefined,
                 "ssl": "",
-                "status": "OFF",
+                "status": "OFFLINE",
                 "linkSite": site
             }
 

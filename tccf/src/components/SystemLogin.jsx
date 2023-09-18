@@ -13,13 +13,15 @@ export default function SystemLogin(props){
     const [email, setEmail] = useState("");
     const [senha, setSenha] = useState("");
     const [name, setName] = useState("");
+    const [AlterOn, setAlertOn] = useState({display: "none"})
+    const [AlertText, setAlertText] = useState("")
 
     function Alerta(text){
-        document.getElementById("textAlert").textContent = text
-        document.getElementById("divAlert").style.display = "flex"
+        setAlertText(text)
+        setAlertOn({display: "flex"})
         setTimeout(() => {
-            document.getElementById("textAlert").textContent = ""
-            document.getElementById("divAlert").style.display = "none"
+            setAlertOn({display: "none"})
+            setAlertText("")
         },10000)  
     }
 
@@ -79,8 +81,8 @@ export default function SystemLogin(props){
                     <div className={styles.text}>
                         <p>Não tem uma conta? <button onClick={() => setType("register")}>Registre-se</button></p>
                     </div>
-                    <div className={styles.alerta} id="divAlert">
-                        <p id="textAlert">ALERTA</p>
+                    <div className={styles.alerta} style={AlterOn} id="divAlert">
+                        <p id="textAlert">{AlertText}</p>
                     </div>
                 </div>
             </form>
@@ -99,8 +101,8 @@ export default function SystemLogin(props){
                     <div className={styles.text}>
                         <p >Tem uma conta? <button onClick={() => setType("login")}>Faça login agora</button></p>
                     </div>
-                    <div className={styles.alerta} id="divAlert">
-                        <p id="textAlert">ALERTA</p>
+                    <div className={styles.alerta} style={AlterOn} id="divAlert">
+                        <p id="textAlert">{AlertText}</p>
                     </div>
                 </div>
             </form>

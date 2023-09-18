@@ -216,12 +216,12 @@ rotas.post('/del-post', async function (req, res) {
   const { idPost, selectPage, id } = req.body;
 
   if (!idPost || !selectPage || !id) {
-    return res.status(400).json({ error: "Dados de entrada inválidos" })
+    return res.status(400).json({ erro: "Dados de entrada inválidos" })
   }
 
   const user = facebookData.find(user => user.id === id)
   if (!user) {
-    return res.status(404).json({ error: "Usuário não encontrado" })
+    return res.status(404).json({ erro: "Usuário não encontrado" })
   }
 
   let token
@@ -233,7 +233,7 @@ rotas.post('/del-post', async function (req, res) {
   }
 
   if (!token) {
-    return res.status(404).json({ error: "Página não encontrada para o usuário" })
+    return res.status(404).json({ erro: "Página não encontrada para o usuário" })
   }
 
   try {
@@ -242,7 +242,7 @@ rotas.post('/del-post', async function (req, res) {
       res.status(200).json("Post excluído com sucesso.")
     } else {
       console.log(response)
-      res.status(404).json("Ocorreu um erro ao tentar excluir o post.")
+      res.status(404).json("Ocorreu um erro ao tentar excluir o post")
     }
   } catch (erro) {
     console.log(erro);
@@ -332,7 +332,6 @@ rotas.post('/add-pages', async function (req, res) {
 //...
 rotas.post('/del-sites', async function (req, res) {
   const { id, site } = req.body
-  console.log(id, site)
   if (!id || !site) {
     return res.status(400).json({ erro: "Dados de entrada inválidos" })
   }
@@ -341,7 +340,12 @@ rotas.post('/del-sites', async function (req, res) {
   if (!user) {
     return res.status(404).json({ erro: "Usuário não encontrado" })
   } else {
-    const data = user.sites.filter(sitesData => sitesData !== site)
+    let data
+    if(typeof user.sites === "string"){
+      data = user.sites.filter(sitesData => sitesData !== site)
+    }else{
+      data = user.sites.filter(sitesData => sitesData.linkSite !== site)
+    }
     if (!data || data == null || data == undefined) {
       return res.status(404).json({ erro: "Não foi possivel encontrar o site!" })
     } else {
@@ -362,9 +366,16 @@ rotas.post('/add-sites', async function (req, res) {
     return res.status(404).json({ erro: "Usuário não encontrado" })
   } else {
     for (const siteUser of user.sites) {
-      if (siteUser === site) {
-        return res.status(409).json({ aviso: "Dados já adicionados" });
+      if(typeof siteUser === "string"){
+        if (siteUser === site) {
+          return res.status(409).json({ erro: "Site já adicionado" });
+        }
+      }else{
+        if(siteUser.linkSite === site){
+          return res.status(409).json({ erro: "Site já adicionado" });
+        }
       }
+
     }
 
     try {
@@ -375,7 +386,7 @@ rotas.post('/add-sites', async function (req, res) {
         return res.status(202).json({ mensagem: "Dados adicionados com sucesso" });
       }
     
-      return res.status(404).json({ mensagem: "Não foi possível encontrar o site!" });
+      return res.status(404).json({ erro: "Não foi possível encontrar o site!" });
     } catch (erro) {
       console.error(erro);
       return res.status(404).json({ erro: "Erro ao verificar o site" });
@@ -394,14 +405,13 @@ rotas.get('/get-sites', async function (req, res) {
     return res.status(404).json({ erro: "Usuário não encontrado" })
   } else {
     for(const site of user.sites){
-      console.log(site)
       if(typeof site === "string"){
         await getInfoSite(site, id)
       }else{
         await getInfoSite(site.linkSite, id)
       }
     }
-    res.status(200).json(siteData)
+    res.status(200).json(user)
   }
 })
 

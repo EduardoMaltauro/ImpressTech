@@ -17,7 +17,18 @@ export default function FacebookPost() {
   const [selectValue, setSelectedValue] = useState("")
   const [mensagemPost, setMensagemPost] = useState("")
   const [imgPost, setImgPost] = useState(null)
+  const [AlterOn, setAlertOn] = useState({display: "none"})
+  const [AlertText, setAlertText] = useState("")
 
+
+  function Alerta(text){
+    setAlertText(text)
+    setAlertOn({display: "flex"})
+    setTimeout(() => {
+        setAlertOn({display: "none"})
+        setAlertText("")
+    },10000)  
+}
 
   function setSelect(value) {
     setSelectedValue(value)
@@ -55,6 +66,7 @@ export default function FacebookPost() {
         }
       } catch (erro) {
         console.log(erro)
+        Alerta(erro.response.data.erro)
       }
 
     }
@@ -72,6 +84,7 @@ export default function FacebookPost() {
         }
       } catch (erro) {
         console.log(erro)
+        Alerta(erro.response.data.erro)
         setType("comPages")
       }
     }
@@ -116,6 +129,7 @@ export default function FacebookPost() {
         }
       } catch (erro) {
         console.log(erro)
+        Alerta(erro.response.data.erro)
         setType("comPages")
       }
     }
@@ -134,14 +148,15 @@ export default function FacebookPost() {
         })
 
         if (resposta.data.pages.length > 0) {
-          setPageName(resposta.data.pages.map((page) => page.pageName));
-          setType("comPages");
+          setPageName(resposta.data.pages.map((page) => page.pageName))
+          setType("comPages")
         } else {
-          setType("semPages");
+          setType("semPages")
         }
       } catch (erro) {
-        console.log(erro);
-        setType("semPages");
+        console.log(erro)
+        Alerta(erro.response.data.erro)
+        setType("semPages")
       }
     }
   }
@@ -153,9 +168,9 @@ export default function FacebookPost() {
   function divPost() {
     const divCreatePost = document.getElementById("divCreatePost")
     if (divCreatePost.style.display === "flex") {
-        divCreatePost.style.display = "none";
+        divCreatePost.style.display = "none"
       } else {
-        divCreatePost.style.display = "flex";
+        divCreatePost.style.display = "flex"
       }
   }
 
@@ -167,6 +182,9 @@ export default function FacebookPost() {
           <p>Você não possui nenhuma página em nosso sistema</p>
           <LoginFacebook getPages={() => getPages()} />
         </div>
+        <div className={styles.alerta} style={AlterOn} id="divAlert">
+                        <p id="textAlert">{AlertText}</p>
+                    </div>
       </div>
     );
   }
@@ -221,6 +239,9 @@ export default function FacebookPost() {
             ))}
           </div>
         </div>
+        <div className={styles.alerta} style={AlterOn} id="divAlert">
+                        <p id="textAlert">{AlertText}</p>
+                    </div>
       </div>
     );
   }
