@@ -55,8 +55,11 @@ export default function SiteCheck() {
                 }
             }catch(erro){
                 verifType()
-                Alerta(erro.response.data.erro)
-                console.log(erro)
+                if (erro.response.data.erro) {
+                    Alerta(erro.response.data.erro);
+                  } else {
+                    console.log(erro);
+                  }
             }
         }
     }
@@ -72,7 +75,7 @@ export default function SiteCheck() {
                     }
                 })
                 if(resposta.status === 200){
-                    const dataSites = resposta.data.map((site) => {
+                    const dataSites = resposta.data.sites.map((site) => {
                         const titulo = site.titulo
                         const favIcon = site.favIcon || "/assets/sem-imagem.png"
                         const status = site.status
@@ -90,10 +93,14 @@ export default function SiteCheck() {
                     setSites(dataSites)            
                 }
             }catch(erro){
-                verifType()
-                alert(erro.response.data.erro)
-                Alerta(erro.response.data.erro)
-                console.log(erro)
+                if (erro) {
+                    verifType();
+                    if (erro.response.data.erro) {
+                        Alerta(erro.response.data.erro);
+                      } else {
+                        console.log(erro);
+                      }
+                  }
             }
         }
     }
@@ -113,8 +120,11 @@ export default function SiteCheck() {
                 }
             }catch(erro){
                 verifType()
-                Alerta(erro.response.data.erro)
-                console.log(erro)
+                if (erro.response.data.erro) {
+                    Alerta(erro.response.data.erro);
+                  } else {
+                    console.log(erro);
+                  }
             }
         }
     }

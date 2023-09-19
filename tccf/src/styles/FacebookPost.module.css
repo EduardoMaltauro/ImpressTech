@@ -2,7 +2,7 @@
     position: fixed;
     margin-top: 56px;
     margin-left: 200px;
-    width: 100vw;
+    width: 95%;
     height: 100vh;
     background-color: #212529;
     border: 1px solid #fff;
@@ -41,7 +41,7 @@
 
 .posts{
     margin-top: 20px;
-    margin-left: 15%;
+    margin-left: 10%;
     padding-bottom: 100px;
     width: auto;
     height: 95vh;
@@ -140,7 +140,8 @@
     
     .posts{
         margin-top: 20px;
-        margin-left: 15%;
+        margin-left: 5%;
+        margin-right: 5%;
         padding-bottom: 100px;
         width: auto;
         height: 95vh;

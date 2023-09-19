@@ -51,7 +51,6 @@ export default function FacebookPost() {
        formData.append("id", id)
        formData.append("selectPage", selectPage)
        formData.append("mensagemPost", mensagemPost)
-       console.log(formData)
        
        const resposta = await axios.post("http://localhost:4000/create-post", formData, {
         headers: {
@@ -65,8 +64,11 @@ export default function FacebookPost() {
           setType("comPages")
         }
       } catch (erro) {
-        console.log(erro)
-        Alerta(erro.response.data.erro)
+        if (erro.response.data.erro) {
+          Alerta(erro.response.data.erro);
+        } else {
+          console.log(erro);
+        }
       }
 
     }
@@ -83,8 +85,11 @@ export default function FacebookPost() {
           setType("comPages")
         }
       } catch (erro) {
-        console.log(erro)
-        Alerta(erro.response.data.erro)
+        if (erro.response.data.erro) {
+          Alerta(erro.response.data.erro);
+        } else {
+          console.log(erro);
+        }
         setType("comPages")
       }
     }
@@ -128,8 +133,11 @@ export default function FacebookPost() {
           setType("comPages")
         }
       } catch (erro) {
-        console.log(erro)
-        Alerta(erro.response.data.erro)
+        if (erro.response.data.erro) {
+          Alerta(erro.response.data.erro);
+        } else {
+          console.log(erro);
+        }
         setType("comPages")
       }
     }
@@ -154,8 +162,11 @@ export default function FacebookPost() {
           setType("semPages")
         }
       } catch (erro) {
-        console.log(erro)
-        Alerta(erro.response.data.erro)
+        if (erro.response.data.erro) {
+          Alerta(erro.response.data.erro);
+        } else {
+          console.log(erro);
+        }
         setType("semPages")
       }
     }
@@ -220,7 +231,7 @@ export default function FacebookPost() {
           <div>
             {listPost.map((item) => (
               <div key={item.idPost} id={item.idPost} className="card mb-3 text-bg-dark border-light" style={{ maxWidth: 540 }}>
-                <button onClick={() => { const id = item.idPost; delPost(id) }} className="btn btn-danger" style={{ position: "absolute", left: "36vw", top: "5px" }}><FontAwesomeIcon icon={faTrash} bounce /></button>
+                <button onClick={() => { const id = item.idPost; delPost(id) }} className="btn btn-danger position-relative position-absolute top-0 end-0" style={{margin:"2px"}}><FontAwesomeIcon icon={faTrash} bounce /></button>
                 <div className="row g-0">
                   <div className="col-md-4">
                     <img src={item.imagem} className="img-fluid rounded-start" alt="..." />

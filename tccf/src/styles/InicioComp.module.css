@@ -1,0 +1,27 @@
+.index{
+    margin-top: 56px;
+    width: auto;
+    height: auto;
+}
+
+.sobre{
+    border: 1px solid #fff;
+    margin: 4%;
+    padding: 10px;
+    text-align: center;
+}
+
+.status{
+    border: 1px solid #fff;
+    border-radius: 5px;
+    position: absolute;
+    padding: 10px;
+    margin: 4%;
+    margin-top: 2%;
+    text-align: center;
+}
+
+.statusDiv{
+    border: 1px solid #fff;
+    border-radius: 5px;
+}

@@ -51,3 +51,17 @@ export async function verifyToken(token){
   }
 }
 
+
+let limit = 200
+export function limitFacebook(res){
+  setTimeout(() => {
+    limit = 200
+  }, 3600000);
+
+  if(res === true){
+    return limit
+  }else{
+    limit--
+  }
+}
+

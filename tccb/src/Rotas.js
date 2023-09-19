@@ -4,13 +4,14 @@ import "dotenv/config.js";
 import multer from "multer";
 import multerConfig from "./config/multer.js";
 import fs from "fs";
+import "dotenv/config.js"
 
 import users from "./data/users.js";
 import facebookData from "./data/FacebookPost.js";
 import siteData from "./data/SiteCheck.js";
 import {getInfoSite} from "./functions/SiteCheck.js";
 
-import { verifyToken } from "./functions/SDKFacebook.js";
+import { verifyToken, limitFacebook } from "./functions/SDKFacebook.js";
 import { newId } from "./functions/SystemLogin.js";
 import "./functions/SystemTimeAccess.js";
 
@@ -26,6 +27,7 @@ const uploadOptions = {
   public_id: 'unique_id_for_image', // Defina um identificador único para o recurso
   context: 'expires_after=24h',     // Define o contexto de expiração
 };
+
 
 
 const rotas = express.Router();
@@ -185,6 +187,7 @@ rotas.post('/create-post', multer(multerConfig).single("file"), async function (
         message: mensagemPost,
         access_token: token
       })
+      limitFacebook(false)
       res.status(201).json({ sucesso: "Post criado com sucesso!" })
     } catch (erro) {
       console.log(erro)
@@ -198,6 +201,7 @@ rotas.post('/create-post', multer(multerConfig).single("file"), async function (
         access_token: token,
         url: imgPost
       })
+      limitFacebook(false)
       if (response.data) {
         res.status(201).json({ sucesso: "Post criado com sucesso!" })
       } else {
@@ -238,6 +242,7 @@ rotas.post('/del-post', async function (req, res) {
 
   try {
     const response = await axios.delete(`https://graph.facebook.com/v17.0/${idPost}?access_token=${token}`)
+    limitFacebook(false)
     if (response.status === 200) {
       res.status(200).json("Post excluído com sucesso.")
     } else {
@@ -286,6 +291,7 @@ rotas.get('/get-post', async function (req, res) {
         access_token: token
       }
     })
+    limitFacebook(false)
 
     res.status(200).json(response.data)
 
@@ -414,6 +420,17 @@ rotas.get('/get-sites', async function (req, res) {
       }
     }
     res.status(200).json(user)
+  }
+})
+
+//...
+rotas.get('/status-facebook', async function (req, res) {
+  try{
+    const limit = await limitFacebook(true)
+    res.status(200).json({info: limit})
+  }catch(erro){
+    console.log(erro)
+    res.status(500)
   }
 })
 
