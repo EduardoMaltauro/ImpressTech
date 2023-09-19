@@ -384,9 +384,11 @@ rotas.post('/add-sites', async function (req, res) {
       if (validSite.status === 200) {
         user.sites.push(site);
         return res.status(202).json({ mensagem: "Dados adicionados com sucesso" });
+      }else{
+        return res.status(404).json({ mensagem: "Não foi possível encontrar o site!" });
       }
     
-      return res.status(404).json({ erro: "Não foi possível encontrar o site!" });
+      return res.status(404).json({ mensagem: "Não foi possível encontrar o site!" })
     } catch (erro) {
       console.error(erro);
       return res.status(404).json({ erro: "Erro ao verificar o site" });

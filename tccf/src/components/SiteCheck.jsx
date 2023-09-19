@@ -72,30 +72,26 @@ export default function SiteCheck() {
                     }
                 })
                 if(resposta.status === 200){
-                    if(resposta.data.sites.length > 0){
-                        const dataSites = resposta.data.sites.map((site) => {
-                            const titulo = site.titulo
-                            const favIcon = site.favIcon || "/assets/sem-imagem.png"
-                            const status = site.status
-                            let ssl = site.ssl
-                            const linkSite = site.linkSite                      
-                           
-                            return {
-                                titulo: titulo,
-                                favIcon: favIcon,
-                                ssl: ssl,
-                                status: status,
-                                link: linkSite
-                            }
-                        })
-                        setSites(dataSites)
-                        verifType()
-                    }else{
-                        setSite([])
-                    }
+                    const dataSites = resposta.data.map((site) => {
+                        const titulo = site.titulo
+                        const favIcon = site.favIcon || "/assets/sem-imagem.png"
+                        const status = site.status
+                        let ssl = site.ssl
+                        const linkSite = site.linkSite                      
+                       
+                        return {
+                            titulo: titulo,
+                            favIcon: favIcon,
+                            ssl: ssl,
+                            status: status,
+                            link: linkSite
+                        }
+                    })
+                    setSites(dataSites)            
                 }
             }catch(erro){
                 verifType()
+                alert(erro.response.data.erro)
                 Alerta(erro.response.data.erro)
                 console.log(erro)
             }

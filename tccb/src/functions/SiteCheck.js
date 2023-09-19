@@ -9,10 +9,14 @@ function RemoveHttp(site) {
         site = site.substr(8)
     }
 
-
     if (site.startsWith("http://")) {
        site = site.substr(7)
     }
+
+    if(site.startsWith("www.")){
+        site = site.substr(4)
+    }
+
     
     if (site.endsWith("/")) {
        site = site.slice(0, -1)
@@ -81,9 +85,4 @@ export async function getInfoSite(site, id) {
 
             dados[user].sites[userSite] = data
         }
-}
-
-
-export async function addSite() {
-
 }
