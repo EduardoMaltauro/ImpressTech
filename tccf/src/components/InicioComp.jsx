@@ -66,7 +66,7 @@ export default function InicioComp() {
     return <>
         <div className={styles.index}>
             <div className={styles.sobre}>
-                <img style={{ maxHeight: 100, maxWidth: 100 }} src="/assets/FavIcon.png" />
+                <img style={{ maxHeight: 100, maxWidth: 100 }} src="assets/FavIcon.png" />
                 <h2>ImpressTech</h2>
                 <p>Você já se imaginou com uma caixa de ferramentas que se adapta perfeitamente às suas
                     necessidades profissionais? Com a plataforma ImpressTech, essa visão torna-se realidade.

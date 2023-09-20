@@ -125,7 +125,7 @@ export default function FacebookPost() {
             const mensagem = post.message || "Sem Texto"
             const created_time = post.created_time;
             const data = format(new Date(created_time), "dd/MM/yy - HH:mm:ss")
-            const imagem = post.full_picture || "/assets/sem-imagem.png"
+            const imagem = post.full_picture || "assets/sem-imagem.png"
 
             return {
               idPost: idPost,

@@ -8,7 +8,7 @@ export default function NavBar(props){
       return<>
         <nav className="navbar navbar-dark bg-dark fixed-top" style={{fontSize: 20}}>
           <div className="container-fluid">
-          <img src="../assets/FavIcon.png" alt="Icon" width="32px" onClick={props.Home} />
+          <img src="assets/FavIcon.png" alt="Icon" width="32px" onClick={props.Home} />
             <a className="navbar-brand" onClick={props.Home}>ImpressTech</a>
             <button className="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasDarkNavbar" aria-controls="offcanvasDarkNavbar" aria-label="Toggle navigation">
               <span className="navbar-toggler-icon"></span>
@@ -42,7 +42,7 @@ export default function NavBar(props){
       return<>
         <nav className="navbar navbar-dark bg-dark fixed-top" style={{fontSize: 20}}>
           <div className="container-fluid">
-          <img src="../assets/FavIcon.png" alt="Icon" width="32px" onClick={props.Home} />
+          <img src="assets/FavIcon.png" alt="Icon" width="32px" onClick={props.Home} />
             <a className="navbar-brand" onClick={props.Home}>ImpressTech</a>
             <button className="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasDarkNavbar" aria-controls="offcanvasDarkNavbar" aria-label="Toggle navigation">
               <span className="navbar-toggler-icon"></span>

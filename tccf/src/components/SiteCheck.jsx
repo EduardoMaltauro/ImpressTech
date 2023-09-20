@@ -79,7 +79,7 @@ export default function SiteCheck() {
                 if(resposta.status === 200){
                     const dataSites = resposta.data.sites.map((site) => {
                         const titulo = site.titulo
-                        const favIcon = site.favIcon || "/assets/sem-imagem.png"
+                        const favIcon = site.favIcon || "assets/sem-imagem.png"
                         const status = site.status
                         let ssl = site.ssl
                         const linkSite = site.linkSite                      
