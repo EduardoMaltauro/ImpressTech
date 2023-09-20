@@ -58,16 +58,19 @@ export default function FacebookPost() {
         }
        })
 
-       getPages(selectPage)
+       await getPages(selectPage)
+       await getPost(selectPage)
         if (resposta.status === 201) {
           divPost()
           setType("comPages")
         }
       } catch (erro) {
-        if (erro.response.data.erro) {
-          Alerta(erro.response.data.erro);
-        } else {
-          console.log(erro);
+        if (erro) {
+          if (erro.response && erro.response.data && erro.response.data.erro) {
+              Alerta(erro.response.data.erro)
+            } else {
+              console.log(erro)
+            }
         }
       }
 
@@ -80,15 +83,18 @@ export default function FacebookPost() {
       try {
         setType("load")
         const resposta = await axios.post("http://localhost:4000/del-post", { idPost, selectPage, id })
+        await getPages(selectPage)
         await getPost(selectPage)
         if (resposta.status === 200) {
           setType("comPages")
         }
       } catch (erro) {
-        if (erro.response.data.erro) {
-          Alerta(erro.response.data.erro);
-        } else {
-          console.log(erro);
+        if (erro) {
+          if (erro.response && erro.response.data && erro.response.data.erro) {
+              Alerta(erro.response.data.erro)
+            } else {
+              console.log(erro)
+            }
         }
         setType("comPages")
       }
@@ -133,10 +139,12 @@ export default function FacebookPost() {
           setType("comPages")
         }
       } catch (erro) {
-        if (erro.response.data.erro) {
-          Alerta(erro.response.data.erro);
-        } else {
-          console.log(erro);
+        if (erro) {
+          if (erro.response && erro.response.data && erro.response.data.erro) {
+              Alerta(erro.response.data.erro)
+            } else {
+              console.log(erro)
+            }
         }
         setType("comPages")
       }
@@ -162,10 +170,12 @@ export default function FacebookPost() {
           setType("semPages")
         }
       } catch (erro) {
-        if (erro.response.data.erro) {
-          Alerta(erro.response.data.erro);
-        } else {
-          console.log(erro);
+        if (erro) {
+          if (erro.response && erro.response.data && erro.response.data.erro) {
+              Alerta(erro.response.data.erro)
+            } else {
+              console.log(erro)
+            }
         }
         setType("semPages")
       }
@@ -215,7 +225,7 @@ export default function FacebookPost() {
         <button className={styles.btnAdd} onClick={() => { divPost() }}><FontAwesomeIcon icon={faPlus} beat></FontAwesomeIcon></button>
 
         <div className={styles.divNewPost} id="divCreatePost" style={{display: "none"}}>
-          <form onSubmit={(event) => { event.preventDefault(); createPost()}} method="post" enctype="multipart/form-data">
+          <form id="form" onSubmit={(event) => { event.preventDefault(); createPost();}} method="post" enctype="multipart/form-data">
             <input id="inputImg" type="file" onChange={(event) => {
               const file = event.target.files[0]
               console.log(file)

@@ -55,10 +55,12 @@ export default function SiteCheck() {
                 }
             }catch(erro){
                 verifType()
-                if (erro.response.data.erro) {
-                    Alerta(erro.response.data.erro);
-                  } else {
-                    console.log(erro);
+                if (erro) {
+                    if (erro.response && erro.response.data && erro.response.data.erro) {
+                        Alerta(erro.response.data.erro)
+                      } else {
+                        console.log(erro)
+                      }
                   }
             }
         }
@@ -93,12 +95,12 @@ export default function SiteCheck() {
                     setSites(dataSites)            
                 }
             }catch(erro){
+                verifType()
                 if (erro) {
-                    verifType();
-                    if (erro.response.data.erro) {
-                        Alerta(erro.response.data.erro);
+                    if (erro.response && erro.response.data && erro.response.data.erro) {
+                        Alerta(erro.response.data.erro)
                       } else {
-                        console.log(erro);
+                        console.log(erro)
                       }
                   }
             }
@@ -120,10 +122,12 @@ export default function SiteCheck() {
                 }
             }catch(erro){
                 verifType()
-                if (erro.response.data.erro) {
-                    Alerta(erro.response.data.erro);
-                  } else {
-                    console.log(erro);
+                if (erro) {
+                    if (erro.response && erro.response.data && erro.response.data.erro) {
+                        Alerta(erro.response.data.erro)
+                      } else {
+                        console.log(erro)
+                      }
                   }
             }
         }
@@ -149,7 +153,7 @@ export default function SiteCheck() {
                 </div>
                 <div className={styles.divNewSite} id="divAddSite" style={{ display: "none" }}>
                     <form onSubmit={(event) => {event.preventDefault(); divSite(); addSites();}}>
-                         <input  onChange={(event) => {setSite(event.target.value)}}  id={styles.inputSite} type="url" placeholder="https://impresscione.com.br/" required/>
+                         <input  onChange={(event) => {setSite(event.target.value)}}  id={styles.inputSite} type="url" placeholder="https://impresstech.com.br/" required/>
                         <br />
                         <input type="submit"/>
                     </form>
@@ -169,7 +173,7 @@ export default function SiteCheck() {
                 <button className={styles.bntRelSites} onClick={() => {getSites()}}><FontAwesomeIcon icon={faRotateRight} spin></FontAwesomeIcon></button>
                 <div className={styles.divNewSite} id="divAddSite" style={{ display: "none" }}>
                     <form onSubmit={(event) => { event.preventDefault(); addSites()}}>
-                        <input  onChange={(event) => {setSite(event.target.value)}}  id={styles.inputSite} type="url" placeholder="https://impresscione.com.br/" required/>
+                        <input  onChange={(event) => {setSite(event.target.value)}}  id={styles.inputSite} type="url" placeholder="https://impresstech.com.br/" required/>
                         <br />
                         <input type="submit" />
                     </form>
