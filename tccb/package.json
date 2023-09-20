@@ -1,7 +1,6 @@
 {
   "name": "tccb",
   "version": "1.0.0",
-  "homepage": "https://eduardomaltauro.github.io/ImpressTech-BackEnd/",
   "description": "",
   "main": "./src/index.js",
   "type": "module",
